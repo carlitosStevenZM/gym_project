@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Model — Gym App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#eef0f2; --panel:#fbfcfc; --card:#ffffff;
+  --line:#d3d8dd; --line-2:#e7eaee;
+  --ink:#15181b; --ink-2:#4e565f; --ink-3:#8b949d;
+  --wire:#8f99a3; --wire-on:#b8362b;
+  --account:#2f6690; --plan:#b4812a; --reality:#b8362b; --catalog:#2b7555;
+  --shadow:0 1px 2px rgba(16,20,26,.05),0 6px 18px rgba(16,20,26,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171a; --panel:#1b1f23; --card:#20252a;
+    --line:#333a41; --line-2:#2a3137;
+    --ink:#eef1f4; --ink-2:#abb4bd; --ink-3:#79838c;
+    --wire:#6f7982; --wire-on:#e2695c;
+    --account:#73a9d4; --plan:#e0b05c; --reality:#e2695c; --catalog:#5fb98c;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.32);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171a; --panel:#1b1f23; --card:#20252a;
+  --line:#333a41; --line-2:#2a3137;
+  --ink:#eef1f4; --ink-2:#abb4bd; --ink-3:#79838c;
+  --wire:#6f7982; --wire-on:#e2695c;
+  --account:#73a9d4; --plan:#e0b05c; --reality:#e2695c; --catalog:#5fb98c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,sans-serif;font-size:14px;
+  -webkit-font-smoothing:antialiased;padding:0 0 56px;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:"Archivo","Public Sans",sans-serif;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--reality);outline-offset:2px;border-radius:5px}
+
+.wrap{max-width:1680px;margin:0 auto;padding-inline:16px}
+
+header{padding-block:28px 18px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+header .t{flex:1;min-width:280px}
+header .eyebrow{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+header h1{font-size:29px;font-weight:800;letter-spacing:-.03em;margin-top:7px}
+header p{color:var(--ink-2);max-width:64ch;line-height:1.55;margin:9px 0 0;font-size:13.5px}
+code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--line-2);padding:1px 5px;border-radius:4px}
+
+.tools{display:flex;gap:6px;align-items:center}
+.tools button{
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:7px 11px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;
+}
+.tools button:hover{color:var(--ink);border-color:var(--ink-3)}
+.tools .z{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);min-width:46px;text-align:center}
+
+.legend{
+  display:flex;flex-wrap:wrap;gap:9px 24px;align-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  padding:12px 17px;margin-bottom:14px;font-size:12.5px;color:var(--ink-2);
+}
+.legend .grp{display:flex;align-items:center;gap:7px}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:0 0 11px}
+.legend svg{display:block;flex:0 0 auto}
+.legend .hint{margin-left:auto;color:var(--ink-3);font-size:12px}
+
+.board{
+  background:var(--panel);border:1px solid var(--line);border-radius:13px;
+  overflow:auto;height:min(78vh,1000px);min-height:420px;padding:18px;
+}
+.stage{position:relative}
+.canvas{position:absolute;top:0;left:0;transform-origin:0 0}
+#wires{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:1}
+#wires path{fill:none;stroke:var(--wire);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#wires path.nul{stroke-dasharray:6 5}
+#wires line{stroke:var(--wire);stroke-width:1.7;stroke-linecap:round}
+.canvas.focus #wires g:not(.on){opacity:.1}
+#wires g.on path{stroke:var(--wire-on);stroke-width:2.2}
+#wires g.on line{stroke:var(--wire-on);stroke-width:2.2}
+
+.cols{position:relative;display:grid;grid-template-columns:repeat(4,292px);gap:172px;padding:60px 0 0 100px;z-index:2}
+.col{display:flex;flex-direction:column;gap:26px}
+.zone{
+  font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;margin-bottom:-10px;
+}
+.zone .sw{width:11px;height:11px;border-radius:3px;flex:0 0 11px}
+.zone .who{color:var(--ink-3);font-weight:600;letter-spacing:.04em;text-transform:none;font-size:11px}
+
+.tbl{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow);overflow:hidden;transition:border-color .12s,box-shadow .12s;
+}
+.tbl:hover{border-color:var(--ink-3)}
+.tbl > h3{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:600;letter-spacing:-.01em;
+  padding:8px 11px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px;
+}
+.tbl > h3 .bar{width:3px;height:13px;border-radius:2px;flex:0 0 3px}
+.tbl.z-account > h3 .bar{background:var(--account)}
+.tbl.z-plan    > h3 .bar{background:var(--plan)}
+.tbl.z-reality > h3 .bar{background:var(--reality)}
+.tbl.z-catalog > h3 .bar{background:var(--catalog)}
+.tbl .cnt{margin-left:auto;font-family:"Public Sans",sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+.f{
+  display:grid;grid-template-columns:28px 1fr auto;gap:6px;align-items:baseline;
+  padding:4px 11px;font-size:12px;border-top:1px solid var(--line-2);
+}
+.f:first-of-type{border-top:0}
+.f .k{font-family:"IBM Plex Mono",monospace;font-size:8.5px;font-weight:600;color:var(--ink-3)}
+.f .k.pk{color:var(--ink)}
+.f .n{font-family:"IBM Plex Mono",monospace;color:var(--ink);word-break:break-word}
+.f .t{font-size:10px;color:var(--ink-3);white-space:nowrap}
+.f.nul .n{color:var(--ink-2)}
+.f.hl{background:var(--line-2)}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-top:22px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:16px 18px}
+.note h2{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.note p,.note li{color:var(--ink-2);line-height:1.58;font-size:12.5px}
+.note p{margin:0 0 8px}
+.note p:last-child,.note li:last-child{margin-bottom:0}
+.note ul{margin:0;padding-left:17px}
+.note li{margin-bottom:6px}
+.note b{color:var(--ink);font-weight:600}
+.note code{font-size:11px}
+
+footer{color:var(--ink-3);font-size:12px;margin-top:24px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="t">
+    <div class="eyebrow">Gym App · requirements</div>
+    <h1>Data Model</h1>
+    <p>Fifteen tables, grouped by who owns the row. The catalog sits in the middle on purpose: it is the only thing Plan and Reality share. The written version — columns, constraints, indexes and reasoning — is in <code>DATA-MODEL.md</code>.</p>
+  </div>
+  <div class="tools">
+    <button id="zout" title="Zoom out">−</button>
+    <span class="z" id="zval">100%</span>
+    <button id="zin" title="Zoom in">+</button>
+    <button id="zfit">Fit</button>
+    <button id="theme">Theme</button>
+  </div>
+</header>
+
+<div class="legend">
+  <span class="grp"><span class="sw" style="background:var(--account)"></span> Account</span>
+  <span class="grp"><span class="sw" style="background:var(--plan)"></span> Plan</span>
+  <span class="grp"><span class="sw" style="background:var(--catalog)"></span> Catalog · shared</span>
+  <span class="grp"><span class="sw" style="background:var(--reality)"></span> Reality</span>
+  <span class="grp">
+    <svg width="40" height="12" viewBox="0 0 40 12"><path d="M2 6h36" stroke="var(--wire)" stroke-width="1.6" fill="none"/></svg> required
+  </span>
+  <span class="grp">
+    <svg width="40" height="12" viewBox="0 0 40 12"><path d="M2 6h36" stroke="var(--wire)" stroke-width="1.6" stroke-dasharray="6 5" fill="none"/></svg> nullable
+  </span>
+  <span class="grp">
+    <svg width="32" height="14" viewBox="0 0 32 14"><path d="M2 7h16" stroke="var(--wire)" stroke-width="1.6" fill="none"/><path d="M18 7l10-5M18 7h10M18 7l10 5" stroke="var(--wire)" stroke-width="1.6" fill="none"/></svg> many
+  </span>
+  <span class="grp">
+    <svg width="32" height="14" viewBox="0 0 32 14"><path d="M12 7h18" stroke="var(--wire)" stroke-width="1.6" fill="none"/><path d="M12 2v10" stroke="var(--wire)" stroke-width="1.8" fill="none"/></svg> one
+  </span>
+  <span class="hint">Hover a table to isolate its relationships</span>
+</div>
+
+<div class="board" id="board">
+<div class="stage" id="stage">
+<div class="canvas" id="canvas">
+  <svg id="wires" aria-hidden="true"></svg>
+  <div class="cols">
+
+    <!-- ══════ ACCOUNT ══════ -->
+    <div class="col" id="c-0">
+      <div class="zone" style="color:var(--account)"><span class="sw" style="background:var(--account)"></span>Account <span class="who">one user</span></div>
+
+      <div class="tbl z-account" id="t-app_user">
+        <h3><span class="bar"></span>app_user</h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">email</span><span class="t">citext</span></div>
+        <div class="f"><span class="k"></span><span class="n">display_name</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">created_at</span><span class="t">timestamptz</span></div>
+        <div class="f"><span class="k"></span><span class="n">updated_at</span><span class="t">timestamptz</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">deleted_at</span><span class="t">timestamptz?</span></div>
+      </div>
+
+      <div class="tbl z-account" id="t-user_settings">
+        <h3><span class="bar"></span>user_settings<span class="cnt">1 per user</span></h3>
+        <div class="f" data-f="user_id"><span class="k pk">PK FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">default_rest_seconds</span><span class="t">smallint</span></div>
+        <div class="f"><span class="k"></span><span class="n">rest_timer_enabled</span><span class="t">boolean</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">weight_unit</span><span class="t">'kg'</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">locale</span><span class="t">'es-MX'</span></div>
+      </div>
+
+      <div class="tbl z-account" id="t-auth_identity">
+        <h3><span class="bar"></span>auth_identity<span class="cnt">account linking</span></h3>
+        <div class="f"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="user_id"><span class="k">FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k"></span><span class="n">provider</span><span class="t">google | password</span></div>
+        <div class="f nul"><span class="k">UK</span><span class="n">provider_subject</span><span class="t">text?</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">password_hash</span><span class="t">text?</span></div>
+        <div class="f"><span class="k"></span><span class="n">last_login_at</span><span class="t">timestamptz</span></div>
+      </div>
+
+      <div class="tbl z-account" id="t-password_reset_token">
+        <h3><span class="bar"></span>password_reset_token</h3>
+        <div class="f"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="user_id"><span class="k">FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">token_hash</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">expires_at</span><span class="t">timestamptz</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">used_at</span><span class="t">timestamptz?</span></div>
+      </div>
+    </div>
+
+    <!-- ══════ PLAN ══════ -->
+    <div class="col" id="c-1">
+      <div class="zone" style="color:var(--plan)"><span class="sw" style="background:var(--plan)"></span>Plan <span class="who">one user</span></div>
+
+      <div class="tbl z-plan" id="t-weekly_training">
+        <h3><span class="bar"></span>weekly_training<span class="cnt">the calendar</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="user_id"><span class="k">FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">is_active</span><span class="t">boolean · 1 per user</span></div>
+        <div class="f"><span class="k"></span><span class="n">created_at</span><span class="t">timestamptz</span></div>
+      </div>
+
+      <div class="tbl z-plan" id="t-weekly_training_day">
+        <h3><span class="bar"></span>weekly_training_day<span class="cnt">exactly 7</span></h3>
+        <div class="f"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="weekly_training_id"><span class="k">FK</span><span class="n">weekly_training_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">day_of_week</span><span class="t">1 Mon … 7 Sun</span></div>
+        <div class="f nul hl" data-f="routine_id"><span class="k">FK</span><span class="n">routine_id</span><span class="t">uuid? · null = rest</span></div>
+      </div>
+
+      <div class="tbl z-plan" id="t-routine">
+        <h3><span class="bar"></span>routine<span class="cnt">one day's plan</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="user_id"><span class="k">FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">created_at</span><span class="t">timestamptz</span></div>
+        <div class="f"><span class="k"></span><span class="n">updated_at</span><span class="t">timestamptz</span></div>
+      </div>
+
+      <div class="tbl z-plan" id="t-routine_exercise">
+        <h3><span class="bar"></span>routine_exercise<span class="cnt">no name of its own</span></h3>
+        <div class="f"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="routine_id"><span class="k">FK</span><span class="n">routine_id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="exercise_id"><span class="k">FK</span><span class="n">exercise_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">position</span><span class="t">smallint</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">target_sets</span><span class="t">smallint</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">target_reps_min</span><span class="t">smallint</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">target_reps_max</span><span class="t">smallint</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">note</span><span class="t">text? · V1.1</span></div>
+      </div>
+    </div>
+
+    <!-- ══════ CATALOG ══════ -->
+    <div class="col" id="c-2">
+      <div class="zone" style="color:var(--catalog)"><span class="sw" style="background:var(--catalog)"></span>Catalog <span class="who">everyone · read-only</span></div>
+
+      <div class="tbl z-catalog" id="t-exercise">
+        <h3><span class="bar"></span>exercise<span class="cnt">the bridge · ~120–150</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="muscle_group_id"><span class="k">FK</span><span class="n">muscle_group_id</span><span class="t">uuid</span></div>
+        <div class="f nul" data-f="primary_muscle_subgroup_id"><span class="k">FK</span><span class="n">primary_muscle_subgroup_id</span><span class="t">uuid?</span></div>
+        <div class="f nul" data-f="equipment_id"><span class="k">FK</span><span class="n">equipment_id</span><span class="t">uuid? · unused V1</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text · Spanish</span></div>
+        <div class="f"><span class="k"></span><span class="n">name_source</span><span class="t">text · original EN</span></div>
+        <div class="f"><span class="k"></span><span class="n">image_url</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">instructions</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">is_active</span><span class="t">boolean</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">external_source + external_id</span><span class="t">text</span></div>
+      </div>
+
+      <div class="tbl z-catalog" id="t-muscle_group">
+        <h3><span class="bar"></span>muscle_group<span class="cnt">6 rows</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">slug</span><span class="t">chest · back · legs …</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text · Spanish</span></div>
+        <div class="f"><span class="k"></span><span class="n">position</span><span class="t">smallint</span></div>
+      </div>
+
+      <div class="tbl z-catalog" id="t-muscle_subgroup">
+        <h3><span class="bar"></span>muscle_subgroup<span class="cnt">~17 rows</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="muscle_group_id"><span class="k">FK</span><span class="n">muscle_group_id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">slug</span><span class="t">text</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text · Spanish</span></div>
+      </div>
+
+      <div class="tbl z-catalog" id="t-equipment">
+        <h3><span class="bar"></span>equipment<span class="cnt">~12 rows</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">slug</span><span class="t">barbell · dumbbell …</span></div>
+        <div class="f"><span class="k"></span><span class="n">name</span><span class="t">text · Spanish</span></div>
+      </div>
+    </div>
+
+    <!-- ══════ REALITY ══════ -->
+    <div class="col" id="c-3">
+      <div class="zone" style="color:var(--reality)"><span class="sw" style="background:var(--reality)"></span>Reality <span class="who">one user</span></div>
+
+      <div class="tbl z-reality" id="t-routine_session">
+        <h3><span class="bar"></span>routine_session<span class="cnt">a trained day</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="user_id"><span class="k">FK</span><span class="n">user_id</span><span class="t">uuid</span></div>
+        <div class="f nul" data-f="routine_id"><span class="k">FK</span><span class="n">routine_id</span><span class="t">uuid? · set null</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">routine_name</span><span class="t">text · snapshot</span></div>
+        <div class="f"><span class="k"></span><span class="n">session_date</span><span class="t">date</span></div>
+        <div class="f"><span class="k"></span><span class="n">started_at</span><span class="t">timestamptz</span></div>
+        <div class="f nul"><span class="k"></span><span class="n">ended_at</span><span class="t">timestamptz?</span></div>
+      </div>
+
+      <div class="tbl z-reality" id="t-exercise_record">
+        <h3><span class="bar"></span>exercise_record<span class="cnt">one exercise, one day</span></h3>
+        <div class="f" data-f="id"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="routine_session_id"><span class="k">FK</span><span class="n">routine_session_id</span><span class="t">uuid · cascade</span></div>
+        <div class="f" data-f="exercise_id"><span class="k">FK</span><span class="n">exercise_id</span><span class="t">uuid · restrict</span></div>
+        <div class="f"><span class="k"></span><span class="n">position</span><span class="t">smallint</span></div>
+      </div>
+
+      <div class="tbl z-reality" id="t-exercise_set">
+        <h3><span class="bar"></span>exercise_set<span class="cnt">what was lifted</span></h3>
+        <div class="f"><span class="k pk">PK</span><span class="n">id</span><span class="t">uuid</span></div>
+        <div class="f" data-f="exercise_record_id"><span class="k">FK</span><span class="n">exercise_record_id</span><span class="t">uuid · cascade</span></div>
+        <div class="f"><span class="k">UK</span><span class="n">set_number</span><span class="t">smallint</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">reps</span><span class="t">smallint</span></div>
+        <div class="f hl"><span class="k"></span><span class="n">weight_kg</span><span class="t">numeric(6,2) · ≥ 0</span></div>
+        <div class="f"><span class="k"></span><span class="n">created_at</span><span class="t">timestamptz</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+</div>
+
+<div class="notes">
+  <div class="note">
+    <h2>The one bridge</h2>
+    <p><b>Plan and Reality never touch each other directly.</b> The only thing they share is the catalog <code>exercise</code> — which is why it sits between them here.</p>
+    <p>That is why progress survives any change of plan: <code>exercise_record</code> points at the exercise, never at the routine. Rename a routine, delete it, switch weekly trainings mid-week — the history is untouched.</p>
+  </div>
+
+  <div class="note">
+    <h2>Two names, on purpose</h2>
+    <p><code>routine_session</code> carries both <code>routine_id</code> and a <code>routine_name</code> snapshot, while <code>routine_exercise</code> deliberately stores <b>no</b> name at all.</p>
+    <p>They are different kinds of thing. A routine exercise is a live part of a plan, so it must always show the current catalog name. A finished session is a <b>historical fact</b>: "on Monday you trained Espalda y bíceps" stays true after you rename or delete that routine.</p>
+  </div>
+
+  <div class="note">
+    <h2>Not stored — these are queries</h2>
+    <ul>
+      <li><b>Session duration</b> — <code>ended_at − started_at</code></li>
+      <li><b>Chart point</b> — <code>max(weight_kg)</code> per date, per exercise, per user</li>
+      <li><b>Heaviest-weight record</b> — <code>max(weight_kg)</code> over all of that user's sets</li>
+      <li><b>Previous-session prefill</b> — the latest <code>exercise_record</code> for that user and exercise</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h2>Invariants the schema can't hold</h2>
+    <ul>
+      <li>A <code>weekly_training</code> always has <b>exactly 7</b> day rows, created in the same transaction as its parent</li>
+      <li><code>exercise.primary_muscle_subgroup_id</code> must belong to the <b>same</b> muscle group as the exercise — needs a trigger or an application rule</li>
+      <li>Only the <b>current day</b> can be logged, and a blank set is never written</li>
+      <li><b>Undecided:</b> nothing stops two sessions on the same date. If one per day is the rule, it needs a unique index</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  Gym App · data model v1 · October 16, 2026 — <code>requirements/DATA-MODEL.md</code> is the written version, with constraints, indexes and the reasoning behind each table.
+</footer>
+
+</div>
+
+<script>
+/* table -> column index */
+const COL = {
+  app_user:0, user_settings:0, auth_identity:0, password_reset_token:0,
+  weekly_training:1, weekly_training_day:1, routine:1, routine_exercise:1,
+  exercise:2, muscle_group:2, muscle_subgroup:2, equipment:2,
+  routine_session:3, exercise_record:3, exercise_set:3
+};
+
+/* from = the "one" side (a PK), to = the "many" side (the FK that points at it) */
+const REL = [
+  {a:['app_user','id'],        b:['user_settings','user_id'],              one:true},
+  {a:['app_user','id'],        b:['auth_identity','user_id']},
+  {a:['app_user','id'],        b:['password_reset_token','user_id']},
+  {a:['app_user','id'],        b:['weekly_training','user_id']},
+  {a:['app_user','id'],        b:['routine','user_id']},
+  {a:['app_user','id'],        b:['routine_session','user_id']},
+
+  {a:['weekly_training','id'], b:['weekly_training_day','weekly_training_id']},
+  {a:['routine','id'],         b:['weekly_training_day','routine_id'], nul:true},
+  {a:['routine','id'],         b:['routine_exercise','routine_id']},
+  {a:['routine','id'],         b:['routine_session','routine_id'], nul:true},
+
+  {a:['exercise','id'],        b:['routine_exercise','exercise_id']},
+  {a:['exercise','id'],        b:['exercise_record','exercise_id']},
+
+  {a:['routine_session','id'], b:['exercise_record','routine_session_id']},
+  {a:['exercise_record','id'], b:['exercise_set','exercise_record_id']},
+
+  {a:['muscle_group','id'],    b:['exercise','muscle_group_id']},
+  {a:['muscle_subgroup','id'], b:['exercise','primary_muscle_subgroup_id'], nul:true},
+  {a:['equipment','id'],       b:['exercise','equipment_id'], nul:true},
+  {a:['muscle_group','id'],    b:['muscle_subgroup','muscle_group_id']}
+];
+
+const NS='http://www.w3.org/2000/svg';
+const canvas=document.getElementById('canvas');
+const stage=document.getElementById('stage');
+const board=document.getElementById('board');
+const svg=document.getElementById('wires');
+
+const PAD = 18;      // clearance between a box edge and the first lane
+const GAP = 24;      // spacing between parallel lanes
+const R   = 9;       // corner radius
+let zoom = 1, natural = {w:0, h:0};
+
+function el(tag, attrs){
+  const n=document.createElementNS(NS, tag);
+  for(const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+const rectOf = node => {
+  const c=canvas.getBoundingClientRect(), r=node.getBoundingClientRect();
+  return {left:(r.left-c.left)/zoom, right:(r.right-c.left)/zoom,
+          top:(r.top-c.top)/zoom, bottom:(r.bottom-c.top)/zoom};
+};
+
+function anchor(table, field){
+  const t=document.getElementById('t-'+table); if(!t) return null;
+  const row=t.querySelector('[data-f="'+field+'"]') || t.querySelector('h3');
+  const tb=rectOf(t), rb=rectOf(row);
+  return {left:tb.left, right:tb.right, y:(rb.top+rb.bottom)/2};
+}
+
+/* path through waypoints, with rounded corners */
+function roundedPath(p){
+  if(p.length<3) return `M ${p[0].x} ${p[0].y} L ${p[p.length-1].x} ${p[p.length-1].y}`;
+  let d=`M ${p[0].x} ${p[0].y}`;
+  for(let i=1;i<p.length-1;i++){
+    const a=p[i-1], c=p[i], b=p[i+1];
+    const d1=Math.hypot(c.x-a.x, c.y-a.y), d2=Math.hypot(b.x-c.x, b.y-c.y);
+    if(d1<1 || d2<1) continue;
+    const r=Math.min(R, d1/2, d2/2);
+    const s={x:c.x-(c.x-a.x)/d1*r, y:c.y-(c.y-a.y)/d1*r};
+    const e={x:c.x+(b.x-c.x)/d2*r, y:c.y+(b.y-c.y)/d2*r};
+    d+=` L ${s.x} ${s.y} Q ${c.x} ${c.y} ${e.x} ${e.y}`;
+  }
+  const z=p[p.length-1];
+  return d+` L ${z.x} ${z.y}`;
+}
+
+function draw(){
+  svg.innerHTML='';
+  const cols=[0,1,2,3].map(i=>rectOf(document.getElementById('c-'+i)));
+  const W=natural.w, H=natural.h;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+
+  /* ---- 1. classify: every vertical segment claims a slot in a channel ---- */
+  const bus=[[],[],[],[]];        // per column, for same-column links
+  const gut=[[],[],[]];           // per gutter, left to right
+  const items=[];
+
+  for(const r of REL){
+    const ca=COL[r.a[0]], cb=COL[r.b[0]];
+    const it={...r, ca, cb};
+    items.push(it);
+    if(ca===cb){ it.kind='bus'; bus[ca].push(it); }
+    else if(Math.abs(ca-cb)===1){ it.kind='side'; gut[Math.min(ca,cb)].push(it); }
+    else { it.kind='top'; gut[Math.min(ca,cb)].push(it); gut[Math.max(ca,cb)-1].push(it); }
+  }
+
+  /* the overhead channel gets its own lanes, so its height never depends
+     on how busy the gutter underneath happens to be */
+  items.filter(i=>i.kind==='top')
+       .sort((p,q)=>Math.min(p.ca,p.cb)-Math.min(q.ca,q.cb))
+       .forEach((it,i)=>{ it.topLane=i; });
+
+  const byY=(p,q)=>{ const pb=anchor(...p.b), qb=anchor(...q.b); return (pb?pb.y:0)-(qb?qb.y:0); };
+
+  /* buses sit immediately left of their column; count them first so the
+     gutters know how much room is left over */
+  const busW=[0,0,0,0];
+  bus.forEach((g,c)=>{
+    g.sort(byY);
+    g.forEach((it,i)=>{ it.busLane=i; });
+    busW[c] = g.length ? PAD + (g.length-1)*GAP + GAP : 0;
+  });
+
+  /* gutter slots, allocated left to right, one shared counter per gutter */
+  gut.forEach((g,i)=>{
+    g.sort(byY);
+    let slot=0;
+    for(const it of g){
+      if(it.kind==='side'){ it.slot=slot++; }
+      else {
+        // a top link crosses two gutters and needs a slot in each
+        if(Math.min(it.ca,it.cb)===i) it.slotIn=slot++;
+        else it.slotOut=slot++;
+      }
+    }
+  });
+
+  const busX  = (c,lane)=> cols[c].left - PAD - lane*GAP;
+  const gutX  = (i,slot)=> cols[i].right + PAD + slot*GAP;
+
+  /* ---- 2. draw ---- */
+  for(const it of items){
+    const A=anchor(...it.a), B=anchor(...it.b);
+    if(!A||!B) continue;
+    let pts;
+
+    if(it.kind==='bus'){
+      const x=busX(it.ca, it.busLane);
+      pts=[{x:A.left,y:A.y},{x,y:A.y},{x,y:B.y},{x:B.left,y:B.y}];
+
+    } else if(it.kind==='side'){
+      const fwd = it.ca < it.cb;
+      const x=gutX(Math.min(it.ca,it.cb), it.slot);
+      pts=[{x: fwd?A.right:A.left, y:A.y},{x,y:A.y},{x,y:B.y},{x: fwd?B.left:B.right, y:B.y}];
+
+    } else {
+      const lo=Math.min(it.ca,it.cb), hi=Math.max(it.ca,it.cb);
+      const fwd = it.ca < it.cb;
+      const x1=gutX(lo, it.slotIn);
+      const x2=gutX(hi-1, it.slotOut);
+      const y =20 + it.topLane*15;
+      pts=[{x: fwd?A.right:A.left, y:A.y},{x:x1,y:A.y},{x:x1,y},{x:x2,y},{x:x2,y:B.y},{x: fwd?B.left:B.right, y:B.y}];
+    }
+
+    const g=el('g',{'data-a':it.a[0],'data-b':it.b[0]});
+    const title=el('title',{});
+    title.textContent=`${it.a[0]}.${it.a[1]} → ${it.b[0]}.${it.b[1]}` + (it.nul?' (nullable)':'');
+    g.appendChild(title);
+    const path=el('path',{d:roundedPath(pts)});
+    if(it.nul) path.setAttribute('class','nul');
+    g.appendChild(path);
+
+    // "one" marker on the parent side
+    const s=pts[0], n=pts[1];
+    const bx=s.x+(Math.sign(n.x-s.x)||1)*8;
+    g.appendChild(el('line',{x1:bx,y1:s.y-5,x2:bx,y2:s.y+5}));
+
+    // "many" marker on the child side
+    const z=pts[pts.length-1], p=pts[pts.length-2];
+    const tdx=Math.sign(p.x-z.x)||1;
+    if(it.one){
+      const ox=z.x+tdx*8;
+      g.appendChild(el('line',{x1:ox,y1:z.y-5,x2:ox,y2:z.y+5}));
+    } else {
+      const fx=z.x+tdx*11;
+      for(const dy of [-5.5,0,5.5]) g.appendChild(el('line',{x1:z.x,y1:z.y,x2:fx,y2:z.y+dy}));
+    }
+    svg.appendChild(g);
+  }
+}
+
+/* ---------- zoom ---------- */
+function applyZoom(z){
+  zoom=Math.max(.3, Math.min(2, z));
+  canvas.style.transform=`scale(${zoom})`;
+  stage.style.width=(natural.w*zoom)+'px';
+  stage.style.height=(natural.h*zoom)+'px';
+  document.getElementById('zval').textContent=Math.round(zoom*100)+'%';
+}
+function measure(){
+  const prev=zoom;
+  zoom=1; canvas.style.transform='scale(1)';
+  const cols=document.querySelector('.cols').getBoundingClientRect();
+  natural={w:Math.ceil(cols.width)+40, h:Math.ceil(cols.height)+30};
+  zoom=prev; applyZoom(prev);
+}
+function fit(){
+  const avail=board.clientWidth-36, availH=board.clientHeight-36;
+  applyZoom(Math.min(avail/natural.w, availH/natural.h, 1.6));
+}
+function refresh(){ measure(); draw(); }
+
+document.getElementById('zin').onclick =()=>{ applyZoom(zoom+.1); draw(); };
+document.getElementById('zout').onclick=()=>{ applyZoom(zoom-.1); draw(); };
+document.getElementById('zfit').onclick=()=>{ fit(); draw(); };
+document.getElementById('theme').onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.getAttribute('data-theme')==='dark' ||
+             (!r.hasAttribute('data-theme') && matchMedia('(prefers-color-scheme:dark)').matches);
+  r.setAttribute('data-theme', dark?'light':'dark');
+};
+
+/* ---------- hover isolation ---------- */
+for(const t of document.querySelectorAll('.tbl')){
+  const name=t.id.slice(2);
+  t.addEventListener('mouseenter',()=>{
+    canvas.classList.add('focus');
+    svg.querySelectorAll('g').forEach(g=>{
+      g.classList.toggle('on', g.dataset.a===name || g.dataset.b===name);
+    });
+  });
+  t.addEventListener('mouseleave',()=>{
+    canvas.classList.remove('focus');
+    svg.querySelectorAll('g.on').forEach(g=>g.classList.remove('on'));
+  });
+}
+
+function boot(){ refresh(); fit(); draw(); }
+boot();
+window.addEventListener('resize', ()=>{ refresh(); fit(); draw(); });
+window.addEventListener('load', boot);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(boot);
+</script>
+</body>
+</html>

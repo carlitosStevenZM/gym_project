@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prototipo Gym Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============ WORKBENCH ============ */
+:root{
+  --wb-bg:#eceef0; --wb-panel:#f8f9fa; --wb-panel-2:#ffffff;
+  --wb-line:#d4d8dd; --wb-line-soft:#e3e6ea;
+  --wb-ink:#171a1d; --wb-ink-2:#4d555e; --wb-ink-3:#78828d;
+  --wb-accent:#b8362b; --wb-accent-soft:#f6e2df;
+  --wb-shadow-phone:0 2px 8px rgba(16,20,26,.14),0 32px 70px rgba(16,20,26,.26);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --wb-bg:#15181b; --wb-panel:#1c2024; --wb-panel-2:#22272c;
+    --wb-line:#343a41; --wb-line-soft:#2a3036;
+    --wb-ink:#eef1f4; --wb-ink-2:#aeb7c0; --wb-ink-3:#7d8791;
+    --wb-accent:#e2695c; --wb-accent-soft:#3a211e;
+    --wb-shadow-phone:0 2px 8px rgba(0,0,0,.5),0 32px 70px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --wb-bg:#15181b; --wb-panel:#1c2024; --wb-panel-2:#22272c;
+  --wb-line:#343a41; --wb-line-soft:#2a3036;
+  --wb-ink:#eef1f4; --wb-ink-2:#aeb7c0; --wb-ink-3:#7d8791;
+  --wb-accent:#e2695c; --wb-accent-soft:#3a211e;
+  --wb-shadow-phone:0 2px 8px rgba(0,0,0,.5),0 32px 70px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--wb-bg);color:var(--wb-ink);font-family:"Public Sans",system-ui,-apple-system,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-family:"Archivo","Public Sans",system-ui,sans-serif;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--wb-accent);outline-offset:2px;border-radius:4px}
+
+.wb{min-height:100%;display:flex;flex-direction:column}
+.wb-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--wb-line);background:var(--wb-panel)}
+.wb-brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.wb-brand h1{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.wb-brand .ver{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--wb-ink-3);border:1px solid var(--wb-line);border-radius:999px;padding:2px 8px}
+.wb-meta{font-size:12.5px;color:var(--wb-ink-2);max-width:52ch;line-height:1.45}
+.wb-tools{display:flex;gap:8px;align-items:center}
+.tool{background:var(--wb-panel-2);border:1px solid var(--wb-line);border-radius:7px;padding:7px 11px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--wb-ink-2)}
+.tool:hover{color:var(--wb-ink);border-color:var(--wb-ink-3)}
+.tool[aria-pressed="true"]{background:var(--wb-accent);border-color:var(--wb-accent);color:#fff}
+
+.wb-grid{flex:1;display:grid;grid-template-columns:244px minmax(0,1fr) 336px;align-items:stretch}
+@media (max-width:1180px){.wb-grid{grid-template-columns:214px minmax(0,1fr)}.notes{display:none}.notes.force{display:block}}
+@media (max-width:860px){.wb-grid{grid-template-columns:1fr}.index{display:none}}
+
+.index{border-right:1px solid var(--wb-line);background:var(--wb-panel);padding:16px 0 40px;overflow-y:auto}
+.idx-group{padding:0 14px;margin-bottom:18px}
+.idx-group h2{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wb-ink-3);padding:0 6px 8px}
+.idx-item{display:flex;gap:9px;align-items:baseline;width:100%;text-align:left;background:none;border:0;cursor:pointer;padding:7px 8px;border-radius:7px;font-size:13px;line-height:1.3;color:var(--wb-ink-2)}
+.idx-item:hover{background:var(--wb-line-soft);color:var(--wb-ink)}
+.idx-item .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--wb-ink-3);min-width:17px}
+.idx-item[aria-current="true"]{background:var(--wb-accent-soft);color:var(--wb-accent);font-weight:600}
+.idx-item[aria-current="true"] .n{color:var(--wb-accent)}
+.idx-item .star{color:var(--wb-accent);font-size:11px}
+
+.stage{display:flex;flex-direction:column;align-items:center;padding:26px 16px 30px;overflow:hidden;min-width:0}
+.stage-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+.stage-head .where{font-family:"Archivo",sans-serif;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.stage-head .count{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--wb-ink-3)}
+.pg{width:30px;height:30px;border-radius:50%;border:1px solid var(--wb-line);background:var(--wb-panel-2);cursor:pointer;display:grid;place-items:center;color:var(--wb-ink-2)}
+.pg:hover{border-color:var(--wb-ink-3);color:var(--wb-ink)}
+.scaler{transform-origin:top center}
+
+/* ============ PHONE ============ */
+.phone{width:440px;height:956px;border-radius:66px;background:#1b1d20;padding:12px;box-shadow:var(--wb-shadow-phone);position:relative}
+.phone::after{content:"";position:absolute;inset:3px;border-radius:63px;border:1px solid rgba(255,255,255,.14);pointer-events:none}
+.viewport{width:100%;height:100%;border-radius:55px;overflow:hidden;position:relative;background:#f2f3f5}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:35px;border-radius:19px;background:#0c0d0e;z-index:40;pointer-events:none}
+
+/* ============ APP (light, es-MX) ============ */
+.app{
+  --bg:#f2f3f5; --surf:#ffffff; --surf-2:#f7f8f9;
+  --line:#e2e5e9; --line-2:#eef0f2;
+  --ink:#14171a; --ink-2:#5a636c; --ink-3:#949ca5;
+  --red:#c0392b; --blue:#2a6099; --green:#2f7d53; --yellow:#c08a12; --violet:#6b4b9a;
+  --acc:#c0392b; --acc-ink:#fff; --acc-soft:#fbeceb; --ok:#2f7d53;
+  position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-size:15px;
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+.screen[hidden]{display:none!important}
+.sb{height:54px;flex:0 0 54px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 4px;font-size:15px;font-weight:600;color:var(--ink);z-index:30}
+.sb .r{display:flex;align-items:center;gap:6px}
+.nav{flex:0 0 auto;display:flex;align-items:center;gap:10px;min-height:50px;padding:4px 16px 10px;background:var(--bg)}
+.nav.bordered{border-bottom:1px solid var(--line);padding-bottom:12px}
+.nav h1{font-size:27px;font-weight:800;letter-spacing:-.025em;font-family:"Archivo",sans-serif}
+.nav .mid{flex:1;text-align:center;font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.nav .side{min-width:62px;display:flex;align-items:center;gap:4px}
+.nav .side.r{justify-content:flex-end}
+.lnk{background:none;border:0;padding:4px 0;color:var(--acc);font-size:15.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:3px}
+.lnk.plain{color:var(--ink-2)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 26px}
+.body.flush{padding-left:0;padding-right:0}
+.body::-webkit-scrollbar{width:0}
+.tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.94);backdrop-filter:blur(12px);padding:9px 6px 26px}
+.tab{background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px;color:var(--ink-3)}
+.tab span{font-size:10.5px;font-weight:600;letter-spacing:-.01em}
+.tab svg{width:25px;height:25px;stroke-width:1.8}
+.tab.on{color:var(--acc)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:15px}
+.sec{margin-top:22px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 9px}
+.sec-h h3{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.muted{color:var(--ink-2)} .small{font-size:13px} .xs{font-size:11.5px}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.btn{width:100%;border:0;border-radius:14px;background:var(--acc);color:var(--acc-ink);font-weight:700;font-size:16.5px;padding:16px;cursor:pointer;letter-spacing:-.01em}
+.btn.ghost{background:var(--surf);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:11px;font-size:14.5px;border-radius:11px}
+.btn.danger{background:none;color:var(--red);border:1px solid var(--line)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;background:var(--surf-2);border:1px solid var(--line);color:var(--ink-2)}
+.pill.acc{background:var(--acc-soft);border-color:transparent;color:var(--acc)}
+.pill.ok{background:#e7f3ec;border-color:transparent;color:var(--ok)}
+.dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+.thumb{width:50px;height:50px;flex:0 0 50px;border-radius:11px;background:var(--surf-2);border:1px solid var(--line-2);display:grid;place-items:center;color:var(--ink-3)}
+.thumb.lg{width:100%;height:188px;border-radius:15px;flex:none;flex-direction:column}
+.thumb .ph{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.row{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--line-2);background:var(--surf)}
+.row:last-child{border-bottom:0}
+.row .grow{flex:1;min-width:0}
+.row .ttl{font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.row .sub{font-size:13px;color:var(--ink-2);margin-top:2px}
+.chev{color:var(--ink-3);flex:0 0 auto}
+.list{border-radius:15px;overflow:hidden;border:1px solid var(--line)}
+.field{width:100%;background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:14px 15px;font:inherit;color:var(--ink)}
+.field::placeholder{color:var(--ink-3)}
+.search{display:flex;align-items:center;gap:9px;background:#e8eaed;border-radius:11px;padding:10px 13px;color:var(--ink-3)}
+.search input{border:0;background:none;outline:0;font:inherit;font-size:15px;color:var(--ink);flex:1;min-width:0}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 16px;margin:0 -16px}
+.chips::-webkit-scrollbar{height:0}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surf);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.note{background:var(--acc-soft);border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.5;color:#8a2b21}
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.zone{border:1px solid var(--line);background:var(--surf);border-radius:15px;padding:15px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:22px}
+.zone .zt{font-weight:700;font-size:16.5px;letter-spacing:-.01em}
+.zone .zs{font-size:12px;color:var(--ink-3);margin-top:2px}
+.exblock{background:var(--surf);border:1px solid var(--line);border-radius:15px;margin-bottom:12px;overflow:hidden}
+.exhead{display:flex;align-items:center;gap:11px;padding:12px 14px}
+.exhead .nm{flex:1;font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.exhead .tgt{font-size:12px;color:var(--ink-3);font-weight:600}
+.setgrid{display:grid;grid-template-columns:34px 1fr 76px 76px 44px;gap:7px;align-items:center;padding:0 12px 4px}
+.setgrid.head{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding-bottom:6px}
+.setgrid.head .c{text-align:center}
+.setgrid.trio{grid-template-columns:34px 1fr 1fr}
+.srow{padding-top:5px;padding-bottom:5px}
+.sn{text-align:center;font-weight:700;font-size:14.5px;color:var(--ink-2)}
+.prev{font-size:12.5px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.inp{width:100%;text-align:center;border:1px solid var(--line);background:var(--surf-2);border-radius:10px;padding:11px 2px;font:inherit;font-size:16px;font-weight:600;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.inp.ghosted{color:var(--ink-3);font-weight:400}
+.ck{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--surf-2);display:grid;place-items:center;cursor:pointer;color:var(--ink-3)}
+.srow.done .inp{background:#e7f3ec;border-color:#cbe4d6;color:#1e6340;font-weight:600}
+.srow.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.rest{position:absolute;left:14px;right:14px;bottom:96px;z-index:25;background:var(--ink);color:#fff;border-radius:15px;padding:13px 16px;display:flex;align-items:center;gap:13px;box-shadow:0 10px 26px rgba(0,0,0,.24)}
+.rest .t{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:600}
+.rest .lbl{flex:1;font-size:13px;opacity:.72}
+.rest button{background:rgba(255,255,255,.17);border:0;color:#fff;border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.bottombar{flex:0 0 auto;padding:11px 16px 28px;background:rgba(255,255,255,.94);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
+.hero{background:var(--ink);color:#fff;border-radius:19px;padding:19px}
+.hero .k{font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;opacity:.6;font-weight:700}
+.hero h2{font-size:26px;font-weight:800;letter-spacing:-.03em;margin:5px 0 3px;font-family:"Archivo",sans-serif}
+.hero .s{font-size:13.5px;opacity:.68}
+.hero .acts{display:flex;gap:9px;margin-top:16px}
+.hero .acts button{flex:1;border:0;border-radius:12px;padding:13px;font-weight:700;font-size:14.5px;cursor:pointer;background:#fff;color:var(--ink)}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.stat{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:13px}
+.stat .v{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11px;color:var(--ink-3);margin-top:3px;font-weight:600}
+.toggle{width:50px;height:30px;border-radius:999px;background:#d6dade;position:relative;flex:0 0 50px;cursor:pointer;border:0;transition:background .15s}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.toggle.on{background:var(--ok)}
+.toggle.on::after{transform:translateX(20px)}
+.dayrow{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--line-2);background:var(--surf)}
+.dayrow:last-child{border-bottom:0}
+.dayrow .d{width:34px;font-weight:700;font-size:13px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.selector{display:flex;align-items:center;gap:11px;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:13px 15px;width:100%;cursor:pointer;text-align:left}
+
+/* ============ NOTES ============ */
+.notes{border-left:1px solid var(--wb-line);background:var(--wb-panel);padding:20px 20px 60px;overflow-y:auto}
+.notes .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--wb-ink-3)}
+.notes h2{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:7px 0 4px}
+.notes .refs{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 18px}
+.ref{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;border:1px solid var(--wb-line);border-radius:5px;padding:2.5px 6px;color:var(--wb-ink-2)}
+.ref.hot{background:var(--wb-accent);border-color:var(--wb-accent);color:#fff}
+.nblock{margin-bottom:19px}
+.nblock h3{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--wb-ink-3);margin-bottom:7px}
+.nblock ul{margin:0;padding-left:17px}
+.nblock li{font-size:13px;line-height:1.55;color:var(--wb-ink-2);margin-bottom:6px}
+.nblock li b,.nblock p b{color:var(--wb-ink);font-weight:600}
+.nblock p{margin:0;font-size:13px;line-height:1.55;color:var(--wb-ink-2)}
+.ask{background:var(--wb-panel-2);border:1px solid var(--wb-line);border-left:3px solid var(--wb-accent);border-radius:0 9px 9px 0;padding:12px 14px}
+.ask h3{color:var(--wb-accent)}
+.ask p{color:var(--wb-ink);font-size:13.5px;line-height:1.5}
+.legend{margin-top:26px;padding-top:16px;border-top:1px solid var(--wb-line);font-size:11.5px;line-height:1.6;color:var(--wb-ink-3)}
+kbd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;border:1px solid var(--wb-line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--wb-ink-2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wb">
+  <header class="wb-top">
+    <div class="wb-brand"><h1>Prototipo Gym Log</h1><span class="ver">SRS v1.6</span></div>
+    <p class="wb-meta">Al día con el SRS acordado. Las pantallas son interactivas: toca, escribe y navega. El diseño visual no es la propuesta — lo que se valida es el flujo.</p>
+    <div class="wb-tools">
+      <button class="tool" id="t-notes" aria-pressed="false">Notas</button>
+      <button class="tool" id="t-theme">Tema</button>
+    </div>
+  </header>
+
+  <div class="wb-grid">
+    <nav class="index" id="index" aria-label="Índice de pantallas"></nav>
+
+    <main class="stage">
+      <div class="stage-head">
+        <button class="pg" id="prev" aria-label="Anterior"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="where" id="where"></span>
+        <span class="count" id="count"></span>
+        <button class="pg" id="next" aria-label="Siguiente"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+
+      <div class="scaler" id="scaler">
+      <div class="phone"><div class="viewport"><div class="island"></div><div class="app" id="app">
+
+<!-- 01 LOGIN -->
+<section class="screen" id="s01">
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="body" style="display:flex;flex-direction:column;justify-content:center;padding:0 28px 60px">
+    <div style="text-align:center;margin-bottom:38px">
+      <div style="width:66px;height:66px;border-radius:19px;background:var(--ink);margin:0 auto 20px;display:grid;place-items:center"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+      <h1 style="font-family:Archivo,sans-serif;font-size:30px;font-weight:800;letter-spacing:-.035em">Gym Log</h1>
+      <p class="muted" style="margin:8px 0 0;font-size:15px;line-height:1.45">Tu rutina y tu progreso,<br>siempre a la mano.</p>
+    </div>
+    <button class="btn ghost" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:11px">
+      <svg width="19" height="19" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.8-.1-1.6-.2-2.3H12v4.4h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.2-4.8 3.2-8.1z"/><path fill="#34A853" d="M12 23c2.9 0 5.4-1 7.2-2.7l-3.6-2.7c-1 .7-2.3 1.1-3.6 1.1-2.8 0-5.2-1.9-6-4.4H2.3v2.8A10.9 10.9 0 0 0 12 23z"/><path fill="#FBBC05" d="M6 14.3a6.5 6.5 0 0 1 0-4.2V7.3H2.3a11 11 0 0 0 0 9.8L6 14.3z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3 .5 4.1 1.6l3.1-3.1A10.9 10.9 0 0 0 12 1 10.9 10.9 0 0 0 2.3 7.3L6 10.1c.8-2.5 3.2-4.7 6-4.7z"/></svg>
+      Continuar con Google
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin:16px 0"><div style="flex:1;height:1px;background:var(--line)"></div><span class="xs muted">o</span><div style="flex:1;height:1px;background:var(--line)"></div></div>
+    <input class="field" style="margin-bottom:9px" type="email" id="f-mail" placeholder="Correo" value="carlos@correo.com">
+    <input class="field" style="margin-bottom:17px" type="password" id="f-pass" placeholder="Contraseña" value="········">
+    <button class="btn" data-go="s02">Entrar</button>
+    <div style="display:flex;justify-content:space-between;margin-top:18px"><button class="lnk">Crear cuenta</button><button class="lnk plain">¿Olvidaste tu contraseña?</button></div>
+  </div>
+</section>
+
+<!-- 02 HOY -->
+<section class="screen" id="s02" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav"><h1>Hoy</h1><div style="margin-left:auto" class="pill">Miércoles 14 oct</div></div>
+  <div class="body">
+    <div class="hero">
+      <div class="k">Rutina de 4 días · hoy toca</div>
+      <h2>Pecho y tríceps</h2>
+      <div class="s">5 ejercicios</div>
+      <div class="acts"><button data-go="s10">Empezar</button></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Esta semana</h3><span class="xs muted">2 de 4 entrenamientos</span></div>
+      <div class="card" style="padding:15px;display:flex;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">L</span><span class="dot" style="background:var(--ok)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">M</span><span class="dot" style="background:var(--line)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">X</span><span class="dot" style="background:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">J</span><span class="dot" style="background:var(--line)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">V</span><span class="dot" style="background:var(--line)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">S</span><span class="dot" style="background:var(--line)"></span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><span class="xs muted">D</span><span class="dot" style="background:var(--line)"></span></div>
+      </div>
+      <p class="xs muted" style="margin:9px 4px 0;line-height:1.5">Martes, jueves y domingo son descanso porque no tienen rutina asignada.</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Últimas sesiones</h3><button class="lnk xs" data-go="s13">Ver todo</button></div>
+      <div class="list">
+        <div class="row" data-go="s14"><div class="dot" style="background:var(--blue);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Espalda y bíceps</div><div class="sub">Lunes 12 oct · 52 min</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        <div class="row" data-go="s14"><div class="dot" style="background:var(--green);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Pierna completa</div><div class="sub">Sábado 10 oct · 61 min</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Tus marcas</h3><button class="lnk xs" data-go="s15">Ver progreso</button></div>
+      <div class="stat3">
+        <div class="stat"><div class="v">67.5<span style="font-size:12px">kg</span></div><div class="l">Press de banca</div></div>
+        <div class="stat"><div class="v">14</div><div class="l">Sesiones este mes</div></div>
+        <div class="stat"><div class="v">3</div><div class="l">Rutinas</div></div>
+      </div>
+    </div>
+  </div>
+  <nav class="tabbar" data-tab="inicio"></nav>
+</section>
+
+<!-- 03 RUTINAS -->
+<section class="screen" id="s03" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav"><h1>Rutinas</h1><button class="lnk" style="margin-left:auto" data-go="s05"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Nueva</button></div>
+  <div class="body">
+    <p class="small muted" style="margin:0 2px 14px;line-height:1.5">Una rutina es un día de entrenamiento. Después las asignas a los días de la semana.</p>
+    <div class="list">
+      <div class="row" data-go="s04"><div class="dot" style="background:var(--red);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Pecho y tríceps</div><div class="sub">5 ejercicios · miércoles</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s04"><div class="dot" style="background:var(--blue);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Espalda y bíceps</div><div class="sub">6 ejercicios · lunes</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s04"><div class="dot" style="background:var(--green);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Pierna completa</div><div class="sub">6 ejercicios · sábado</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s04"><div class="dot" style="background:var(--yellow);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Hombro y abdomen</div><div class="sub">5 ejercicios · viernes</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s04"><div class="dot" style="background:var(--ink-3);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl">Full body</div><div class="sub">4 ejercicios · sin asignar</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <p class="xs muted" style="margin:11px 4px 0;line-height:1.5">«Full body» existe pero no está en ningún día, así que hoy no aparece en Hoy.</p>
+  </div>
+  <nav class="tabbar" data-tab="rutinas"></nav>
+</section>
+
+<!-- 04 DETALLE RUTINA -->
+<section class="screen" id="s04" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered">
+    <div class="side"><button class="lnk" data-go="s03"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Rutinas</button></div>
+    <div class="mid">Pecho y tríceps</div>
+    <div class="side r"><button class="lnk" data-go="s09">Editar</button></div>
+  </div>
+  <div class="body">
+    <div style="display:flex;gap:7px;margin:14px 0 16px"><span class="pill">5 ejercicios</span><span class="pill"><span class="dot" style="background:var(--red);width:7px;height:7px;flex:0 0 7px"></span> Miércoles</span></div>
+    <div class="list">
+      <div class="row"><div class="thumb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press de banca con barra</div><div class="sub">4 series · 8–12 reps</div></div></div>
+      <div class="row"><div class="thumb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press inclinado con mancuernas</div><div class="sub">4 series · 8–12 reps</div></div></div>
+      <div class="row"><div class="thumb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Aperturas en polea</div><div class="sub">3 series · 12–15 reps</div></div></div>
+      <div class="row"><div class="thumb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Fondos en paralelas</div><div class="sub">3 series · 8–12 reps</div></div></div>
+      <div class="row"><div class="thumb"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Extensión de tríceps en polea</div><div class="sub">3 series · 12–15 reps</div></div></div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:16px"><button class="btn ghost sm" style="flex:1">Duplicar</button><button class="btn danger sm" style="flex:1">Borrar rutina</button></div>
+    <div class="note" style="margin-top:12px"><b>Si borras esta rutina</b>, el miércoles se queda sin rutina y pasa a ser descanso. Tu historial y tus gráficas no se tocan.</div>
+    <p class="xs muted" style="margin:12px 4px 0;line-height:1.5">No hay botón de empezar: se entrena desde Hoy, con la rutina que toca.</p>
+  </div>
+  <nav class="tabbar" data-tab="rutinas"></nav>
+</section>
+
+<!-- 05 NUEVA RUTINA -->
+<section class="screen" id="s05" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk plain" data-go="s03">Cancelar</button></div><div class="mid">Nueva rutina</div><div class="side r"><button class="lnk" style="opacity:.35">Guardar</button></div></div>
+  <div class="body">
+    <div style="margin:16px 0 20px"><input class="field" id="f-rut" placeholder="Nombre de la rutina" value="Pecho y tríceps" style="font-size:19px;font-weight:700;letter-spacing:-.02em"></div>
+    <div style="text-align:center;padding:44px 26px;border:1px dashed var(--line);border-radius:17px;background:var(--surf)">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--surf-2);display:grid;place-items:center;margin:0 auto 15px;color:var(--ink-3)"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div style="font-weight:700;font-size:16px;letter-spacing:-.01em">Todavía no hay ejercicios</div>
+      <p class="small muted" style="margin:7px 0 0;line-height:1.5">Agrega los que quieras, en el orden que los vas a hacer.</p>
+    </div>
+  </div>
+  <div class="bottombar"><button class="btn" data-go="s06">Agregar ejercicios</button></div>
+</section>
+
+<!-- 06 GRUPOS MUSCULARES -->
+<section class="screen" id="s06" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk plain" data-go="s05">Cancelar</button></div><div class="mid">Agregar ejercicios</div><div class="side r"></div></div>
+  <div class="body">
+    <div class="search" style="margin:14px 0 16px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input placeholder="Buscar ejercicio" aria-label="Buscar ejercicio"></div>
+    <div class="sec-h"><h3>Grupo muscular</h3></div>
+    <div class="zgrid">
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--red)"></span><span><span class="zt">Pecho</span><span class="zs">18 ejercicios</span></span></button>
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--blue)"></span><span><span class="zt">Espalda</span><span class="zs">22 ejercicios</span></span></button>
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--green)"></span><span><span class="zt">Pierna</span><span class="zs">26 ejercicios</span></span></button>
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--yellow)"></span><span><span class="zt">Hombro</span><span class="zs">16 ejercicios</span></span></button>
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--violet)"></span><span><span class="zt">Brazo</span><span class="zs">24 ejercicios</span></span></button>
+      <button class="zone" data-go="s07"><span class="dot" style="background:var(--ink-3)"></span><span><span class="zt">Abdomen</span><span class="zs">14 ejercicios</span></span></button>
+    </div>
+    <p class="xs muted" style="margin:13px 4px 0;line-height:1.5">Seis grupos. La pantorrilla va dentro de pierna.</p>
+  </div>
+</section>
+
+<!-- 07 LISTA DE EJERCICIOS -->
+<section class="screen" id="s07" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s06"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Grupos</button></div><div class="mid">Pecho</div><div class="side r"></div></div>
+  <div class="body" style="padding-top:14px">
+    <div class="search" style="margin-bottom:15px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input placeholder="Buscar en pecho" aria-label="Buscar"></div>
+    <div class="list">
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press de banca con barra</div><div class="sub">Pectoral medio</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press inclinado con mancuernas</div><div class="sub">Pectoral superior</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row" data-go="s08"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Aperturas en polea</div><div class="sub">Pectoral medio</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press plano con mancuernas</div><div class="sub">Pectoral medio</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Fondos en paralelas</div><div class="sub">Pectoral inferior</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Press en máquina</div><div class="sub">Pectoral medio</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="row"><div class="thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div><div class="grow"><div class="ttl">Pullover con mancuerna</div><div class="sub">Pectoral medio</div></div><button class="ck" data-check><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+    </div>
+    <p class="xs muted" style="margin:12px 4px 0;line-height:1.5">Toca el nombre para ver cómo se hace. Toca la palomita para agregarlo.</p>
+  </div>
+  <div class="bottombar"><button class="btn" data-go="s09"><span id="pickcount">Agregar ejercicios</span></button></div>
+</section>
+
+<!-- 08 FICHA -->
+<section class="screen" id="s08" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s07"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Pecho</button></div><div class="mid">Ejercicio</div><div class="side r"></div></div>
+  <div class="body">
+    <div class="thumb lg" style="margin:14px 0 17px"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg><span class="ph">Imagen del catálogo</span></div>
+    <h2 style="font-size:23px;font-weight:800;letter-spacing:-.025em;font-family:Archivo,sans-serif">Aperturas en polea</h2>
+    <div style="display:flex;gap:7px;margin:12px 0 18px;flex-wrap:wrap">
+      <span class="pill"><span class="dot" style="background:var(--red);width:7px;height:7px;flex:0 0 7px"></span> Pecho</span>
+      <span class="pill">Pectoral medio</span>
+    </div>
+    <div class="sec-h"><h3>Cómo se hace</h3></div>
+    <ol class="small muted" style="margin:0;padding-left:19px;line-height:1.65">
+      <li style="margin-bottom:7px">Coloca las poleas a la altura de los hombros y toma un agarre en cada mano.</li>
+      <li style="margin-bottom:7px">Da un paso al frente con el pecho arriba y los codos ligeramente flexionados.</li>
+      <li style="margin-bottom:7px">Junta las manos al frente apretando el pecho, sin que los codos se cierren.</li>
+      <li>Regresa despacio controlando el peso hasta sentir el estiramiento.</li>
+    </ol>
+    <div class="sec">
+      <div class="sec-h"><h3>Tu marca</h3><button class="lnk xs" data-go="s16">Ver historial</button></div>
+      <div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div class="xs muted" style="font-weight:600">Peso más alto</div><div class="mono" style="font-size:19px;font-weight:600;margin-top:3px">25 kg</div></div>
+        <span class="pill ok">2 oct</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottombar"><button class="btn" data-go="s07">Agregar a la rutina</button></div>
+</section>
+
+<!-- 09 RUTINA ARMADA -->
+<section class="screen" id="s09" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk plain" data-go="s03">Cancelar</button></div><div class="mid">Pecho y tríceps</div><div class="side r"><button class="lnk" data-go="s04" style="font-weight:700">Guardar</button></div></div>
+  <div class="body">
+    <p class="xs muted" style="margin:13px 2px 11px;line-height:1.5">Arrastra para cambiar el orden. Toca las series o las reps para ajustarlas.</p>
+    <div class="card" style="padding:13px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+        <div class="thumb" style="width:40px;height:40px;flex:0 0 40px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <div class="grow" style="flex:1"><div class="ttl" style="font-size:15px">Press de banca con barra</div></div>
+        <button class="lnk plain" style="padding:4px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:11px">
+        <div style="flex:1;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Series</span><span class="mono" style="font-weight:600;font-size:16px">4</span></div>
+        <div style="flex:1.3;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Reps objetivo</span><span class="mono" style="font-weight:600;font-size:16px">8–12</span></div>
+      </div>
+    </div>
+    <div class="card" style="padding:13px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+        <div class="thumb" style="width:40px;height:40px;flex:0 0 40px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <div class="grow" style="flex:1"><div class="ttl" style="font-size:15px">Press inclinado con mancuernas</div></div>
+        <button class="lnk plain" style="padding:4px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:11px">
+        <div style="flex:1;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Series</span><span class="mono" style="font-weight:600;font-size:16px">4</span></div>
+        <div style="flex:1.3;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Reps objetivo</span><span class="mono" style="font-weight:600;font-size:16px">8–12</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:9px;padding:8px 11px;background:var(--surf-2);border:1px dashed var(--line);border-radius:10px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h8"/></svg>
+        <span class="xs muted" style="flex:1">Agregar nota</span><span class="pill xs">V1.1</span>
+      </div>
+    </div>
+    <div class="card" style="padding:13px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+        <div class="thumb" style="width:40px;height:40px;flex:0 0 40px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <div class="grow" style="flex:1"><div class="ttl" style="font-size:15px">Aperturas en polea</div></div>
+        <button class="lnk plain" style="padding:4px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:11px">
+        <div style="flex:1;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Series</span><span class="mono" style="font-weight:600;font-size:16px">3</span></div>
+        <div style="flex:1.3;background:var(--surf-2);border:1px solid var(--line);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between"><span class="xs muted" style="font-weight:600">Reps objetivo</span><span class="mono" style="font-weight:600;font-size:16px">12–15</span></div>
+      </div>
+    </div>
+    <button class="btn ghost sm" data-go="s06" style="margin-top:4px">+ Agregar más ejercicios</button>
+    <div class="note" style="margin-top:14px">Aquí <b>no se pone el peso</b>. Ese lo anotas en el gym y la app te recuerda el de la vez pasada.</div>
+  </div>
+</section>
+
+<!-- 10 ENTRENAMIENTO SEMANAL -->
+<section class="screen" id="s17" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s18"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Ajustes</button></div><div class="mid">Entrenamiento semanal</div><div class="side r"></div></div>
+  <div class="body">
+    <button class="selector" style="margin:14px 0 8px" data-go="s11">
+      <span class="grow" style="flex:1"><span class="xs muted" style="font-weight:600;letter-spacing:.05em;text-transform:uppercase">Activo</span><span class="ttl" style="display:block;margin-top:3px">Rutina de 4 días</span></span>
+      <span class="pill ok">En uso</span>
+      <svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <p class="xs muted" style="margin:0 4px 16px;line-height:1.5">Puedes tener varios y cambiar de uno a otro. El cambio aplica desde hoy en adelante.</p>
+
+    <div class="list">
+      <div class="dayrow"><span class="d">Lun</span><span class="dot" style="background:var(--blue)"></span><div class="grow"><div style="font-weight:600;font-size:15px">Espalda y bíceps</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow"><span class="d">Mar</span><span class="dot" style="background:var(--line)"></span><div class="grow"><div style="font-weight:500;font-size:15px;color:var(--ink-3)">Descanso</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow" style="background:var(--acc-soft)"><span class="d" style="color:var(--acc)">Mié</span><span class="dot" style="background:var(--red)"></span><div class="grow"><div style="font-weight:700;font-size:15px">Pecho y tríceps</div><div class="xs" style="color:var(--acc);font-weight:600;margin-top:2px">Hoy</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow"><span class="d">Jue</span><span class="dot" style="background:var(--line)"></span><div class="grow"><div style="font-weight:500;font-size:15px;color:var(--ink-3)">Descanso</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow"><span class="d">Vie</span><span class="dot" style="background:var(--yellow)"></span><div class="grow"><div style="font-weight:600;font-size:15px">Hombro y abdomen</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow"><span class="d">Sáb</span><span class="dot" style="background:var(--green)"></span><div class="grow"><div style="font-weight:600;font-size:15px">Pierna completa</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="dayrow"><span class="d">Dom</span><span class="dot" style="background:var(--line)"></span><div class="grow"><div style="font-weight:500;font-size:15px;color:var(--ink-3)">Descanso</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <div class="note" style="margin-top:14px">Los días en <b>Descanso</b> no se eligen: es lo que queda cuando un día no tiene rutina. Si le quitas la rutina a un día, vuelve a ser descanso.</div>
+  </div>
+</section>
+
+<!-- 11 MIS ENTRENAMIENTOS SEMANALES -->
+<section class="screen" id="s11" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s17"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Semana</button></div><div class="mid">Mis entrenamientos</div><div class="side r"><button class="lnk">Nuevo</button></div></div>
+  <div class="body">
+    <p class="small muted" style="margin:14px 2px 15px;line-height:1.5">Solo uno puede estar activo. El que elijas manda desde hoy en adelante.</p>
+    <div class="list">
+      <div class="row" style="background:var(--acc-soft)"><div class="ck" style="background:var(--acc);border-color:var(--acc);color:#fff;width:28px;height:28px;flex:0 0 28px;border-radius:50%"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></div><div class="grow"><div class="ttl">Rutina de 4 días</div><div class="sub">Lun · Mié · Vie · Sáb</div></div></div>
+      <div class="row"><div class="ck" style="width:28px;height:28px;flex:0 0 28px;border-radius:50%"></div><div class="grow"><div class="ttl">Semana ligera</div><div class="sub">Mar · Jue</div></div></div>
+      <div class="row"><div class="ck" style="width:28px;height:28px;flex:0 0 28px;border-radius:50%"></div><div class="grow"><div class="ttl">Volumen · 5 días</div><div class="sub">Lun · Mar · Jue · Vie · Sáb</div></div></div>
+    </div>
+    <div class="note" style="margin-top:14px">Si te cambias a <b>Semana ligera</b> hoy miércoles, hoy pasa a ser descanso y el resto de la semana sigue esa. Los días que ya entrenaste no se tocan.</div>
+    <p class="xs muted" style="margin:12px 4px 0;line-height:1.5">Esta es la única forma de cambiar lo que toca hoy: se cambia la semana completa, no el día suelto.</p>
+  </div>
+</section>
+
+<!-- 12 ENTRENANDO -->
+<section class="screen" id="s10" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered">
+    <div class="side"><button class="lnk plain" data-go="s02">Pausar</button></div>
+    <div class="mid">Pecho y tríceps <span class="mono xs muted" style="display:block;font-weight:500;margin-top:1px">24:18</span></div>
+    <div class="side r"><button class="lnk" data-go="s12" style="font-weight:700">Terminar</button></div>
+  </div>
+  <div class="body" style="padding-top:13px">
+    <div style="display:flex;gap:7px;margin-bottom:13px"><span class="pill ok">Guardado</span><span class="pill">6 de 17 series</span></div>
+
+    <div class="exblock">
+      <div class="exhead">
+        <div class="thumb" style="width:38px;height:38px;flex:0 0 38px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <span class="nm">Press de banca con barra</span><span class="tgt">8–12</span>
+      </div>
+      <div class="setgrid head"><span class="c">#</span><span>Anterior</span><span class="c">kg</span><span class="c">Reps</span><span></span></div>
+      <div class="setgrid srow done" data-set><span class="sn">1</span><span class="prev">60 × 10</span><input class="inp" value="60" inputmode="decimal" aria-label="Peso serie 1"><input class="inp" value="10" inputmode="numeric" aria-label="Reps serie 1"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow done" data-set><span class="sn">2</span><span class="prev">65 × 8</span><input class="inp" value="65" inputmode="decimal" aria-label="Peso serie 2"><input class="inp" value="9" inputmode="numeric" aria-label="Reps serie 2"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow" data-set><span class="sn">3</span><span class="prev">65 × 8</span><input class="inp ghosted" value="65" inputmode="decimal" aria-label="Peso serie 3"><input class="inp ghosted" value="8" inputmode="numeric" aria-label="Reps serie 3"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow" data-set style="padding-bottom:12px"><span class="sn">4</span><span class="prev">60 × 8</span><input class="inp ghosted" value="60" inputmode="decimal" aria-label="Peso serie 4"><input class="inp ghosted" value="8" inputmode="numeric" aria-label="Reps serie 4"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+    </div>
+
+    <div class="exblock">
+      <div class="exhead">
+        <div class="thumb" style="width:38px;height:38px;flex:0 0 38px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <span class="nm">Press inclinado con mancuernas</span><span class="tgt">8–12</span>
+      </div>
+      <div class="setgrid head"><span class="c">#</span><span>Anterior</span><span class="c">kg</span><span class="c">Reps</span><span></span></div>
+      <div class="setgrid srow" data-set><span class="sn">1</span><span class="prev">24 × 10</span><input class="inp ghosted" value="24" inputmode="decimal" aria-label="Peso"><input class="inp ghosted" value="10" inputmode="numeric" aria-label="Reps"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow" data-set><span class="sn">2</span><span class="prev">24 × 9</span><input class="inp ghosted" value="24" inputmode="decimal" aria-label="Peso"><input class="inp ghosted" value="9" inputmode="numeric" aria-label="Reps"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow" data-set><span class="sn">3</span><span class="prev">22 × 10</span><input class="inp ghosted" value="22" inputmode="decimal" aria-label="Peso"><input class="inp ghosted" value="10" inputmode="numeric" aria-label="Reps"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+      <div class="setgrid srow" data-set style="padding-bottom:12px"><span class="sn">4</span><span class="prev">22 × 9</span><input class="inp ghosted" value="22" inputmode="decimal" aria-label="Peso"><input class="inp ghosted" value="9" inputmode="numeric" aria-label="Reps"><button class="ck" data-toggle><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></button></div>
+    </div>
+
+    <div class="exblock" style="opacity:.55">
+      <div class="exhead">
+        <div class="thumb" style="width:38px;height:38px;flex:0 0 38px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
+        <span class="nm">Aperturas en polea</span><span class="tgt">3 series · 12–15</span>
+      </div>
+    </div>
+    <p class="xs muted" style="margin:2px 4px 0;line-height:1.5">Las series son las que definió la rutina: no se agregan ni se quitan aquí.</p>
+  </div>
+  <div class="rest" id="rest" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.2 2.2M9 2h6"/></svg>
+    <span class="t" id="restT">1:30</span><span class="lbl">Descanso</span><button id="restSkip">Saltar</button>
+  </div>
+  <div class="bottombar"><button class="btn" data-go="s12">Terminar entrenamiento</button></div>
+</section>
+
+<!-- 13 RESUMEN -->
+<section class="screen" id="s12" hidden>
+  <div class="sb" style="color:#fff"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="body flush" style="padding-bottom:0">
+    <div style="background:var(--ink);color:#fff;padding:14px 22px 34px;text-align:center">
+      <div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;margin:0 auto 15px"><svg width="29" height="29" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></div>
+      <h2 style="font-family:Archivo,sans-serif;font-size:25px;font-weight:800;letter-spacing:-.03em">¡Sesión guardada!</h2>
+      <p style="margin:7px 0 0;opacity:.66;font-size:14px">Pecho y tríceps · Miércoles 14 oct</p>
+      <div style="margin-top:24px"><div class="mono" style="font-size:38px;font-weight:600;letter-spacing:-.03em">48:12</div><div class="xs" style="opacity:.6;margin-top:3px">Duración</div></div>
+    </div>
+    <div style="padding:0 16px 24px;margin-top:-20px">
+      <div class="card" style="padding:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M17 5h3v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V5h3M7 3h10v6a5 5 0 0 1-10 0V3z"/></svg>
+          <h3 style="font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--acc)">Récord nuevo</h3>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:600;font-size:14.5px">Press de banca</div><div class="xs muted" style="margin-top:2px">Antes: 65 kg</div></div>
+          <div class="mono" style="font-weight:600;font-size:17px;color:var(--ok)">67.5 kg</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-h"><h3>Lo que hiciste</h3></div>
+        <div class="list">
+          <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Press de banca con barra</div><div class="sub mono">60×10 · 65×9 · 65×8 · 67.5×8</div></div></div>
+          <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Press inclinado con mancuernas</div><div class="sub mono">24×10 · 24×9 · 22×10 · 22×9</div></div></div>
+          <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Aperturas en polea</div><div class="sub mono">25×14 · 25×12 · 22.5×12</div></div></div>
+          <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Fondos en paralelas</div><div class="sub mono">0×12 · 0×10 · 0×9</div></div></div>
+        </div>
+        <p class="xs muted" style="margin:11px 4px 0;line-height:1.5">Programaste 5 ejercicios e hiciste 4. Se guarda lo que hiciste, sin marcarlo como incompleto.</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottombar"><button class="btn" data-go="s02">Listo</button></div>
+</section>
+
+<!-- 14 HISTORIAL -->
+<section class="screen" id="s13" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav"><h1>Historial</h1></div>
+  <div class="body">
+    <div class="stat3" style="margin:6px 0 20px">
+      <div class="stat"><div class="v">14</div><div class="l">Este mes</div></div>
+      <div class="stat"><div class="v">87</div><div class="l">En total</div></div>
+      <div class="stat"><div class="v">52<span style="font-size:12px">min</span></div><div class="l">Promedio</div></div>
+    </div>
+    <div class="sec-h"><h3>Octubre 2026</h3></div>
+    <div class="list" style="margin-bottom:18px">
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--red);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Pecho y tríceps</div><div class="sub">Miércoles 14 · 48 min · 4 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--blue);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Espalda y bíceps</div><div class="sub">Lunes 12 · 52 min · 6 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--green);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Pierna completa</div><div class="sub">Sábado 10 · 61 min · 6 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--yellow);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Hombro y abdomen</div><div class="sub">Viernes 9 · 44 min · 5 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <div class="sec-h"><h3>Septiembre 2026</h3></div>
+    <div class="list">
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--blue);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Espalda y bíceps</div><div class="sub">Lunes 29 · 55 min · 6 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row" data-go="s14"><div class="dot" style="background:var(--green);width:10px;height:10px;flex:0 0 10px"></div><div class="grow"><div class="ttl" style="font-size:15px">Pierna completa</div><div class="sub">Sábado 27 · 58 min · 6 ejercicios</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  </div>
+  <nav class="tabbar" data-tab="historial"></nav>
+</section>
+
+<!-- 15 SESIÓN PASADA -->
+<section class="screen" id="s14" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s13"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Historial</button></div><div class="mid">Lunes 12 oct</div><div class="side r"><button class="lnk">Editar</button></div></div>
+  <div class="body">
+    <div style="margin:14px 0 17px">
+      <h2 style="font-size:22px;font-weight:800;letter-spacing:-.025em;font-family:Archivo,sans-serif">Espalda y bíceps</h2>
+      <div style="display:flex;gap:7px;margin-top:11px;flex-wrap:wrap"><span class="pill">19:05 – 19:57</span><span class="pill">52 min</span></div>
+    </div>
+    <div class="exblock">
+      <div class="exhead"><span class="nm">Jalón al pecho</span><button class="lnk xs" data-go="s16">Historial</button></div>
+      <div class="setgrid head trio"><span class="c">#</span><span class="c">kg</span><span class="c">Reps</span></div>
+      <div class="setgrid trio" style="padding-bottom:7px"><span class="sn">1</span><span class="mono" style="text-align:center">55</span><span class="mono" style="text-align:center">12</span></div>
+      <div class="setgrid trio" style="padding-bottom:7px"><span class="sn">2</span><span class="mono" style="text-align:center">60</span><span class="mono" style="text-align:center">10</span></div>
+      <div class="setgrid trio" style="padding-bottom:7px"><span class="sn">3</span><span class="mono" style="text-align:center">60</span><span class="mono" style="text-align:center">9</span></div>
+      <div class="setgrid trio" style="padding-bottom:13px"><span class="sn">4</span><span class="mono" style="text-align:center">55</span><span class="mono" style="text-align:center">10</span></div>
+    </div>
+    <div class="exblock">
+      <div class="exhead"><span class="nm">Remo con barra</span><button class="lnk xs" data-go="s16">Historial</button></div>
+      <div class="setgrid head trio"><span class="c">#</span><span class="c">kg</span><span class="c">Reps</span></div>
+      <div class="setgrid trio" style="padding-bottom:7px"><span class="sn">1</span><span class="mono" style="text-align:center">50</span><span class="mono" style="text-align:center">10</span></div>
+      <div class="setgrid trio" style="padding-bottom:7px"><span class="sn">2</span><span class="mono" style="text-align:center">52.5</span><span class="mono" style="text-align:center">9</span></div>
+      <div class="setgrid trio" style="padding-bottom:13px"><span class="sn">3</span><span class="mono" style="text-align:center">52.5</span><span class="mono" style="text-align:center">8</span></div>
+    </div>
+    <p class="xs muted" style="margin:2px 4px 0;line-height:1.5">La duración sale de restar la hora de fin menos la de inicio. No se guarda.</p>
+  </div>
+</section>
+
+<!-- 16 PROGRESO -->
+<section class="screen" id="s15" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav"><h1>Progreso</h1></div>
+  <div class="body">
+    <button class="selector" style="margin:4px 0 16px">
+      <span class="grow" style="flex:1"><span class="xs muted" style="font-weight:600;letter-spacing:.05em;text-transform:uppercase">Ejercicio</span><span class="ttl" style="display:block;margin-top:3px">Press de banca con barra</span></span>
+      <svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+
+    <div class="card" style="padding:17px 14px 10px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin:0 4px 6px">
+        <div>
+          <div class="mono" style="font-size:31px;font-weight:600;letter-spacing:-.03em;line-height:1">67.5 kg</div>
+          <div class="xs muted" style="margin-top:5px;font-weight:600">Peso máximo · 14 oct</div>
+        </div>
+        <span class="pill ok">+23% en 2 meses</span>
+      </div>
+      <svg id="chart" viewBox="0 0 376 212" width="100%" style="display:block;overflow:visible" role="img" aria-label="Peso máximo en press de banca"></svg>
+    </div>
+
+    <div class="chips" style="margin-top:13px;padding-left:0">
+      <button class="chip">1 mes</button><button class="chip on">3 meses</button><button class="chip">1 año</button><button class="chip">Todo</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h3>Tu marca</h3></div>
+      <div class="list">
+        <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Peso más alto</div><div class="sub">14 oct 2026</div></div><span class="mono" style="font-weight:600">67.5 kg</span></div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:14px">Del <b>16 al 30 de sep</b> la línea se ve plana: hiciste 65 kg tres veces seguidas aunque subiste de 6 a 8 repeticiones. El peso máximo no lo detecta — es el <b>riesgo aceptado</b> del SRS §12.</div>
+  </div>
+  <nav class="tabbar" data-tab="progreso"></nav>
+</section>
+
+<!-- 17 HISTORIAL POR EJERCICIO -->
+<section class="screen" id="s16" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav bordered"><div class="side"><button class="lnk" data-go="s15"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Progreso</button></div><div class="mid">Press de banca</div><div class="side r"></div></div>
+  <div class="body">
+    <p class="small muted" style="margin:14px 2px 14px;line-height:1.5">Todas las veces que has hecho este ejercicio, con cualquier rutina.</p>
+    <div class="exblock">
+      <div class="exhead"><span class="nm" style="font-size:14.5px">Miércoles 14 oct</span><span class="pill ok xs">Récord</span></div>
+      <div class="setgrid head trio"><span class="c">#</span><span class="c">kg</span><span class="c">Reps</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">1</span><span class="mono" style="text-align:center">60</span><span class="mono" style="text-align:center">10</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">2</span><span class="mono" style="text-align:center">65</span><span class="mono" style="text-align:center">9</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">3</span><span class="mono" style="text-align:center">65</span><span class="mono" style="text-align:center">8</span></div>
+      <div class="setgrid trio" style="padding-bottom:13px"><span class="sn">4</span><span class="mono" style="text-align:center;color:var(--ok);font-weight:600">67.5</span><span class="mono" style="text-align:center">8</span></div>
+    </div>
+    <div class="exblock">
+      <div class="exhead"><span class="nm" style="font-size:14.5px">Martes 30 sep</span></div>
+      <div class="setgrid head trio"><span class="c">#</span><span class="c">kg</span><span class="c">Reps</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">1</span><span class="mono" style="text-align:center">60</span><span class="mono" style="text-align:center">10</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">2</span><span class="mono" style="text-align:center">65</span><span class="mono" style="text-align:center">8</span></div>
+      <div class="setgrid trio" style="padding-bottom:13px"><span class="sn">3</span><span class="mono" style="text-align:center">65</span><span class="mono" style="text-align:center">7</span></div>
+    </div>
+    <div class="exblock">
+      <div class="exhead"><span class="nm" style="font-size:14.5px">Martes 23 sep</span></div>
+      <div class="setgrid head trio"><span class="c">#</span><span class="c">kg</span><span class="c">Reps</span></div>
+      <div class="setgrid trio" style="padding-bottom:5px"><span class="sn">1</span><span class="mono" style="text-align:center">60</span><span class="mono" style="text-align:center">9</span></div>
+      <div class="setgrid trio" style="padding-bottom:13px"><span class="sn">2</span><span class="mono" style="text-align:center">65</span><span class="mono" style="text-align:center">7</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 AJUSTES -->
+<section class="screen" id="s18" hidden>
+  <div class="sb"><span class="mono">7:41</span><span class="r" data-sb></span></div>
+  <div class="nav"><h1>Ajustes</h1></div>
+  <div class="body">
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px;margin:4px 0 20px">
+      <div style="width:50px;height:50px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:19px;font-family:Archivo,sans-serif">C</div>
+      <div class="grow"><div style="font-weight:700;font-size:16.5px;letter-spacing:-.01em">Carlos</div><div class="sub">carlos@correo.com · Google y contraseña</div></div>
+    </div>
+
+    <div class="sec-h"><h3>Entrenamiento</h3></div>
+    <div class="list" style="margin-bottom:20px">
+      <div class="row" data-go="s17"><div class="grow"><div class="ttl" style="font-size:15px">Mi entrenamiento semanal</div><div class="sub">Rutina de 4 días</div></div><svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Temporizador de descanso</div><div class="sub">Arranca al confirmar una serie</div></div><button class="toggle on" data-toggle-switch aria-pressed="true" aria-label="Temporizador"></button></div>
+      <div class="row"><div class="grow"><div class="ttl" style="font-size:15px">Duración del descanso</div><div class="sub">El mismo para todos los ejercicios</div></div><span class="pill">1:30</span></div>
+    </div>
+
+    <div class="list">
+      <div class="row"><div class="grow"><div class="ttl" style="font-size:15px;color:var(--acc)">Cerrar sesión</div></div></div>
+      <div class="row"><div class="grow"><div class="ttl" style="font-size:15px;color:var(--red)">Borrar mi cuenta</div><div class="sub">Se borra todo tu historial. No se puede deshacer</div></div></div>
+    </div>
+    <p class="xs muted" style="margin:16px 4px 0;text-align:center">Gym Log · versión de prueba</p>
+  </div>
+  <nav class="tabbar" data-tab="ajustes"></nav>
+</section>
+
+      </div></div></div>
+      </div>
+    </main>
+
+    <aside class="notes" id="notes" aria-label="Notas de la pantalla"></aside>
+  </div>
+</div>
+
+<script>
+const SCREENS=[
+ {id:"s01",g:"Entrada",t:"Iniciar sesión",refs:["FR-1"],
+  muestra:["Google y correo/contraseña conviven sin estorbarse.","Entrar con Google es un solo toque."],
+  dominio:"Si alguien entra con Google y luego usa correo y contraseña con <b>el mismo correo</b>, se vinculan las dos formas de entrar a la misma cuenta. En el modelo eso es la tabla <code>auth_identity</code>: un usuario, varios renglones."},
+
+ {id:"s02",g:"Entrada",t:"Hoy",refs:["FR-5","FR-6","D1","D2"],hot:true,
+  muestra:["Qué toca hoy, según el entrenamiento semanal activo.","Un solo botón: <b>Empezar</b>.","Los días sin rutina salen en gris: son descanso."],
+  dominio:"<b>El entrenamiento semanal es la estructura.</b> Esta pantalla no elige nada: lee qué rutina tiene asignado el miércoles y la muestra.",
+  ojo:"Ya no está el botón «Otra rutina» (D2). Tampoco el total de series ni el tiempo estimado (D10). La marca que se muestra es el <b>peso máximo</b>, no el 1RM."},
+
+ {id:"s03",g:"Rutinas · el plan",t:"Mis rutinas",refs:["FR-3","FR-4"],
+  muestra:["Las rutinas son días de entrenamiento, no semanas.","Cada una dice a qué día está asignada.","«Full body» existe sin estar en ningún día."],
+  dominio:"Una <b>rutina</b> es una agrupación de ejercicios de un día. Existe aunque ningún día la use; simplemente no aparece en Hoy.",
+  ojo:"Se quitó «Entrenamiento libre, sin rutina» (D13)."},
+
+ {id:"s04",g:"Rutinas · el plan",t:"Ver una rutina",refs:["FR-4","D2"],
+  muestra:["Los ejercicios en orden, con series y reps objetivo.","A qué día está asignada.","Duplicar y borrar."],
+  dominio:"Borrar la rutina deja el miércoles <b>sin rutina</b>, o sea en descanso, y no toca el historial. En la base de datos ese día se queda con la rutina en null.",
+  ojo:"Se quitó el botón de empezar: solo se entrena desde Hoy, con lo que toca (D2). También se fueron el total de series y el tiempo estimado."},
+
+ {id:"s05",g:"Rutinas · el plan",t:"Nueva rutina",refs:["FR-3"],
+  muestra:["Empiezas con el nombre y una lista vacía.","No se pide decidir cuántos ejercicios de antemano."],
+  dominio:"Los ejercicios se agregan libremente y la lista crece. Cada uno se guarda como un renglón de <code>routine_exercise</code>."},
+
+ {id:"s06",g:"Rutinas · el plan",t:"Grupo muscular",refs:["FR-2","D19","D26"],
+  muestra:["Dos pasos para llegar al ejercicio: grupo y luego lista.","<b>Seis grupos</b>, ni más ni menos."],
+  dominio:"Pecho, espalda, pierna, hombro, brazo y abdomen. La pantorrilla va dentro de pierna. El subgrupo específico (pectoral superior) es metadato del ejercicio, no un nivel de navegación.",
+  ojo:"Antes eran ocho; se cerraron en seis (D26)."},
+
+ {id:"s07",g:"Rutinas · el plan",t:"Lista de ejercicios",refs:["FR-2","D33"],
+  muestra:["Se pueden <b>seleccionar varios de un jalón</b>. Pruébalo con las palomitas.","Buscador dentro del grupo."],
+  dominio:"Este es el <b>catálogo</b>: global, igual para todos los usuarios, y el usuario no lo edita.",
+  ojo:"Se quitaron los filtros por equipo. El dato se guarda porque viene en la importación, pero no se usa en la v1 (D33)."},
+
+ {id:"s08",g:"Rutinas · el plan",t:"Ficha del ejercicio",refs:["FR-2","D16"],
+  muestra:["La imagen manda: resuelve «no sé cómo se hace».","Grupo y subgrupo muscular.","Tu peso más alto en ese ejercicio."],
+  dominio:"Cada ejercicio tiene <b>un solo</b> subgrupo muscular principal.",
+  ojo:"Se quitaron los músculos secundarios (D16) y el tipo de medición: ahora el peso es un solo campo para todo (D31)."},
+
+ {id:"s09",g:"Rutinas · el plan",t:"Rutina armada",refs:["FR-3","D20","D22","D24"],hot:true,
+  muestra:["Series y rango de repeticiones <b>por ejercicio dentro de esta rutina</b>.","Se reordena arrastrando.","La nota queda marcada como V1.1."],
+  dominio:"Esto es <code>routine_exercise</code>: series, reps objetivo y orden viven aquí, <b>no</b> en el catálogo. Por eso el mismo press de banca puede ser 4×8–12 en una rutina y 2×12–15 en otra.",
+  ojo:"El peso objetivo no se captura (D20). El rango de reps es informativo: la app no valida contra él (D14)."},
+
+ {id:"s17",g:"La semana",t:"Entrenamiento semanal",refs:["FR-5","D3","D4","D30"],hot:true,
+  muestra:["El <b>selector del activo</b> arriba de los días.","Los 7 días, siempre.","Tres días en descanso."],
+  dominio:"El descanso <b>no se elige</b>: es lo que queda cuando un día no tiene rutina. En la base de datos es una columna vacía, no un tipo especial.",
+  ojo:"Se quitó la sección de notificaciones: no es un requisito de la v1."},
+
+ {id:"s11",g:"La semana",t:"Mis entrenamientos",refs:["FR-5","D3","D2"],hot:true,
+  muestra:["Varios entrenamientos semanales, <b>solo uno activo</b>.","Qué días cubre cada uno.","Cambiar aplica desde hoy en adelante."],
+  dominio:"Pantalla nueva. Es la <b>única forma de cambiar lo que toca hoy</b>: se cambia la semana completa, no el día suelto (D2). Los días ya entrenados no se tocan, porque el historial no cuelga del plan.",
+  ojo:"Sustituye a la pantalla de «agregar un ejercicio que no estaba», que contradecía D12."},
+
+ {id:"s10",g:"Entrenar · la realidad",t:"Entrenando",refs:["FR-6","D11","D12","D21"],hot:true,star:true,
+  muestra:["<b>Pruébala tocando</b> las palomitas: arranca el temporizador de descanso.","Los números en gris son lo de la vez pasada.","El tercer ejercicio aparece atenuado: todavía no lo empiezas."],
+  dominio:"La columna <b>Anterior</b> es lo que hace que registrar una serie repetida sea un solo toque. Sale de tu propio historial, no de un valor del catálogo.",
+  ojo:"Se fueron «Agregar serie» (D11), «Agregar un ejercicio que no estaba» (D12), el botón de saltar y la etiqueta «Sin conexión» — la v1 requiere conexión (D29)."},
+
+ {id:"s12",g:"Entrenar · la realidad",t:"Resumen",refs:["FR-6","D10","D27"],
+  muestra:["La duración en grande.","Un récord: <b>peso más alto</b>.","Programaste 5 ejercicios e hiciste 4, y nada lo marca como incompleto."],
+  dominio:"La duración se calcula restando la hora de fin menos la de inicio. No se guarda en ningún lado.",
+  ojo:"Se quitaron el total de series y el peso movido (D10), y el récord de «más repeticiones» (D27)."},
+
+ {id:"s13",g:"Historial y progreso",t:"Historial",refs:["FR-7"],
+  muestra:["Sesiones por fecha, de la más nueva a la más vieja.","Fecha, rutina y duración."],
+  dominio:"Cada renglón es una <b>sesión de rutina</b>. El nombre de la rutina queda copiado en la sesión, así que sigue ahí aunque después borres esa rutina.",
+  ojo:"Se quitaron las toneladas movidas (D10) y el renglón de entrenamiento libre (D13)."},
+
+ {id:"s14",g:"Historial y progreso",t:"Una sesión",refs:["FR-7","D2"],
+  muestra:["Serie por serie, tal como se registró.","Hora de inicio y fin.","Se puede corregir si tecleaste mal."],
+  dominio:"Este registro es <b>inmutable</b> frente a los cambios de plan. Aunque mañana borres «Espalda y bíceps», este día se queda exactamente así.",
+  ojo:"Se quitó la columna de 1RM estimado (D36) y el botón de repetir el entrenamiento, que permitía entrenar fuera de lo programado."},
+
+ {id:"s15",g:"Historial y progreso",t:"Progreso",refs:["FR-8","D9","D36"],hot:true,star:true,
+  muestra:["<b>Una sola métrica: peso máximo.</b> Sin selector.","Un punto por sesión.","Una sola marca: el peso más alto."],
+  dominio:"El valor del día es el peso más pesado que levantaste ese día en ese ejercicio. Si hiciste 10, 10 y 30 kg, el punto es 30.",
+  ojo:"La nota de abajo enseña el <b>riesgo aceptado</b>: tres sesiones a 65 kg se ven planas aunque hayas subido de 6 a 8 repeticiones. Se decidió así a conciencia y está en §12 del SRS."},
+
+ {id:"s16",g:"Historial y progreso",t:"Historial del ejercicio",refs:["FR-7","D9"],
+  muestra:["Todas las veces que has hecho ese ejercicio.","Da igual con qué rutina lo hiciste."],
+  dominio:"Aquí se ve por qué el registro apunta al <b>ejercicio del catálogo</b> y no a la rutina: así el historial sobrevive a cualquier cambio de plan.",
+  ojo:"Se quitó la columna de 1RM estimado (D36)."},
+
+ {id:"s18",g:"Ajustes",t:"Ajustes",refs:["FR-9","D35"],
+  muestra:["Entrenamiento semanal activo.","Temporizador de descanso y su duración.","Cerrar sesión y borrar cuenta."],
+  dominio:"El descanso es <b>un solo valor para todos los ejercicios</b>, no por rutina ni por ejercicio.",
+  ojo:"Se quitaron el selector de unidades (los pesos son siempre kg, NF-5) y la exportación a CSV, que no está en la v1."}
+];
+
+/* ÍNDICE */
+const idxEl=document.getElementById("index");
+let html="",lastG="";
+SCREENS.forEach((s,i)=>{
+  if(s.g!==lastG){ if(lastG) html+="</div>"; html+=`<div class="idx-group"><h2>${s.g}</h2>`; lastG=s.g; }
+  html+=`<button class="idx-item" data-i="${i}"><span class="n">${String(i+1).padStart(2,"0")}</span><span>${s.t}${s.star?' <span class="star">★</span>':''}</span></button>`;
+});
+idxEl.innerHTML=html+"</div>";
+
+/* BARRA DE ESTADO */
+const SB='<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" width="3" height="12" rx="1" opacity=".35"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor"><rect x="1" y="1.5" width="18" height="9" rx="2.5" stroke-width="1.2" opacity=".5"/><rect x="2.8" y="3.3" width="12" height="5.4" rx="1.2" fill="currentColor"/><path d="M21 4.5v3" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg>';
+document.querySelectorAll("[data-sb]").forEach(n=>n.innerHTML=SB);
+
+/* TAB BAR */
+const TABS=[
+ {k:"inicio",l:"Hoy",to:"s02",d:'<path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/>'},
+ {k:"rutinas",l:"Rutinas",to:"s03",d:'<rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/>'},
+ {k:"historial",l:"Historial",to:"s13",d:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'},
+ {k:"progreso",l:"Progreso",to:"s15",d:'<path d="M3.5 17.5l5-5 3.5 3.5 6-7"/><path d="M14.5 9h3.5v3.5"/>'},
+ {k:"ajustes",l:"Ajustes",to:"s18",d:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/>'}
+];
+document.querySelectorAll(".tabbar").forEach(tb=>{
+  const cur=tb.dataset.tab;
+  tb.innerHTML=TABS.map(t=>`<button class="tab ${t.k===cur?"on":""}" data-go="${t.to}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${t.d}</svg><span>${t.l}</span></button>`).join("");
+});
+
+/* NAVEGACIÓN */
+let cur=0;
+const whereEl=document.getElementById("where"),countEl=document.getElementById("count"),notesEl=document.getElementById("notes");
+function show(i){
+  cur=(i+SCREENS.length)%SCREENS.length;
+  const s=SCREENS[cur];
+  document.querySelectorAll(".screen").forEach(el=>el.hidden=(el.id!==s.id));
+  document.querySelectorAll(".idx-item").forEach((b,k)=>b.setAttribute("aria-current",k===cur?"true":"false"));
+  whereEl.textContent=s.t;
+  countEl.textContent=String(cur+1).padStart(2,"0")+"/"+String(SCREENS.length).padStart(2,"0");
+  notesEl.innerHTML=`
+    <div class="eyebrow">${s.g}</div>
+    <h2>${s.t}</h2>
+    <div class="refs">${s.refs.map(r=>`<span class="ref${s.hot?" hot":""}">${r}</span>`).join("")}</div>
+    <div class="nblock"><h3>Qué muestra</h3><ul>${s.muestra.map(v=>`<li>${v}</li>`).join("")}</ul></div>
+    <div class="nblock"><h3>Concepto del dominio</h3><p>${s.dominio}</p></div>
+    ${s.ojo?`<div class="nblock ask"><h3>Cambió respecto al v0</h3><p>${s.ojo}</p></div>`:""}
+    <div class="legend">★ Pantallas críticas.<br>Navega con <kbd>←</kbd> <kbd>→</kbd> o tocando la pantalla.</div>`;
+  const ai=idxEl.querySelector('[data-i="'+cur+'"]'); if(ai) ai.scrollIntoView({block:"nearest"});
+  if(s.id==="s15") drawChart();
+  const sc=document.querySelector("#"+s.id+" .body"); if(sc) sc.scrollTop=0;
+}
+const byId=id=>SCREENS.findIndex(s=>s.id===id);
+idxEl.addEventListener("click",e=>{const b=e.target.closest(".idx-item"); if(b) show(+b.dataset.i);});
+document.getElementById("prev").onclick=()=>show(cur-1);
+document.getElementById("next").onclick=()=>show(cur+1);
+document.addEventListener("keydown",e=>{
+  if(e.target.matches("input")) return;
+  if(e.key==="ArrowRight") show(cur+1);
+  if(e.key==="ArrowLeft") show(cur-1);
+});
+
+/* INTERACCIONES */
+let restTimer=null,restLeft=90;
+const restEl=document.getElementById("rest"),restT=document.getElementById("restT");
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+function startRest(){
+  clearInterval(restTimer); restLeft=90; restT.textContent=fmt(restLeft); restEl.hidden=false;
+  restTimer=setInterval(()=>{restLeft--; restT.textContent=fmt(Math.max(0,restLeft));
+    if(restLeft<=0){clearInterval(restTimer); restEl.hidden=true;}},1000);
+}
+document.getElementById("restSkip").onclick=()=>{clearInterval(restTimer); restEl.hidden=true;};
+
+document.getElementById("app").addEventListener("click",e=>{
+  const t=e.target.closest("[data-toggle]");
+  if(t){
+    const row=t.closest(".srow"), was=row.classList.contains("done");
+    row.classList.toggle("done");
+    row.querySelectorAll(".inp").forEach(i=>i.classList.toggle("ghosted",was));
+    if(!was) startRest();
+    return;
+  }
+  const c=e.target.closest("[data-check]");
+  if(c){
+    c.classList.toggle("picked");
+    const on=c.classList.contains("picked");
+    c.style.background=on?"var(--acc)":""; c.style.borderColor=on?"var(--acc)":""; c.style.color=on?"#fff":"";
+    const n=document.querySelectorAll("#s07 .ck.picked").length;
+    document.getElementById("pickcount").textContent =
+      n===0?"Agregar ejercicios":(n===1?"Agregar 1 ejercicio":"Agregar "+n+" ejercicios");
+    return;
+  }
+  const sw=e.target.closest("[data-toggle-switch]");
+  if(sw){ sw.classList.toggle("on"); sw.setAttribute("aria-pressed",sw.classList.contains("on")?"true":"false"); return; }
+  const ch=e.target.closest(".chip");
+  if(ch){ ch.parentElement.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); ch.classList.add("on"); return; }
+  const g=e.target.closest("[data-go]");
+  if(g){ const i=byId(g.dataset.go); if(i>=0) show(i); }
+});
+document.getElementById("app").addEventListener("focusin",e=>{
+  if(e.target.classList && e.target.classList.contains("inp")) e.target.classList.remove("ghosted");
+});
+
+/* GRÁFICA · peso máximo por sesión */
+const SESSIONS=[
+ {d:"12 ago",kg:55},{d:"19 ago",kg:57.5},{d:"26 ago",kg:60},
+ {d:"2 sep",kg:60},{d:"9 sep",kg:62.5},{d:"16 sep",kg:65},
+ {d:"23 sep",kg:65},{d:"30 sep",kg:65},{d:"14 oct",kg:67.5}
+];
+function drawChart(){
+  const svg=document.getElementById("chart"); if(!svg) return;
+  const W=376,H=212,L=42,Rp=8,T=12,B=28;
+  const vals=SESSIONS.map(s=>s.kg);
+  let min=Math.min(...vals), max=Math.max(...vals);
+  const pad=(max-min)*0.3||5;
+  min=Math.round((min-pad)/2.5)*2.5; max=Math.round((max+pad*0.5)/2.5)*2.5;
+  const x=i=>L+i*((W-L-Rp)/(SESSIONS.length-1));
+  const y=v=>T+(H-T-B)*(1-(v-min)/(max-min));
+  const css=getComputedStyle(document.querySelector(".app"));
+  const line=css.getPropertyValue("--line-2").trim()||"#eef0f2";
+  const ink3=css.getPropertyValue("--ink-3").trim()||"#949ca5";
+  const acc=css.getPropertyValue("--acc").trim()||"#c0392b";
+  let g="";
+  for(let k=0;k<=3;k++){
+    const v=min+(max-min)*k/3, yy=y(v);
+    g+=`<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W-Rp}" y2="${yy.toFixed(1)}" stroke="${line}" stroke-width="1" fill="none"/>`;
+    g+=`<text x="${L-8}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="${ink3}">${v.toFixed(0)}</text>`;
+  }
+  const pts=SESSIONS.map((s,i)=>[x(i),y(s.kg)]);
+  const path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  g+=`<path d="${path} L ${pts[pts.length-1][0].toFixed(1)} ${(H-B).toFixed(1)} L ${pts[0][0].toFixed(1)} ${(H-B).toFixed(1)} Z" fill="${acc}" fill-opacity="0.07" stroke="none"/>`;
+  g+=`<path d="${path}" fill="none" stroke="${acc}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i)=>{
+    const last=i===pts.length-1;
+    g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${last?5:3.1}" fill="${last?acc:"#ffffff"}" stroke="${acc}" stroke-width="2"/>`;
+  });
+  [0,4,8].forEach(i=>{
+    g+=`<text x="${x(i).toFixed(1)}" y="${H-9}" text-anchor="${i===0?"start":i===8?"end":"middle"}" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="${ink3}">${SESSIONS[i].d}</text>`;
+  });
+  svg.innerHTML=g;
+}
+
+/* ESCALA */
+const scaler=document.getElementById("scaler");
+function fit(){
+  const stage=document.querySelector(".stage");
+  const s=Math.min(1,(stage.clientHeight-74)/956,(stage.clientWidth-8)/440);
+  scaler.style.transform="scale("+s.toFixed(3)+")";
+  scaler.style.height=(956*s)+"px";
+}
+window.addEventListener("resize",fit);
+
+/* HERRAMIENTAS */
+const tn=document.getElementById("t-notes");
+tn.onclick=()=>{
+  const n=document.getElementById("notes");
+  n.classList.toggle("force");
+  tn.setAttribute("aria-pressed",n.classList.contains("force")?"true":"false");
+};
+document.getElementById("t-theme").onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.getAttribute("data-theme")==="dark"||(!r.hasAttribute("data-theme")&&matchMedia("(prefers-color-scheme:dark)").matches);
+  r.setAttribute("data-theme",dark?"light":"dark");
+};
+
+show(0); fit();
+</script>
+</body>
+</html>
