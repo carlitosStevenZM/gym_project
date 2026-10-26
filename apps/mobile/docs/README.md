@@ -14,7 +14,7 @@ descriptive, meaning it explains how something that already exists works.
 | [`agents/anti-patterns.md`](agents/anti-patterns.md) | The named wrong shapes, each one the reverse of a discipline rule |
 
 The git workflow is **not** here: it is the same for both apps and lives at
-[`../../../docs/git-workflow.md`](../../../docs/git-workflow.md).
+[`../../../docs/agents/git-workflow.md`](../../../docs/agents/git-workflow.md).
 
 What belongs here: how a feature of this app works once it is built, navigation and state decisions,
 Expo build and release notes, anything about running it on a device.

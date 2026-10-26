@@ -34,7 +34,8 @@ and carry on.
 - `requirements/DATA-MODEL-EXPLAINED.md` — the same model in prose, no SQL *(Spanish)*
 - `requirements/DISCOVERY.md` — why something was decided *(Spanish)*
 - `requirements/assets/prototype.html` — the 18 screens, in line with the SRS
-- `docs/git-workflow.md` — branches, pull requests, commit convention, how a change gets in
+- `docs/agents/git-workflow.md` — branches, pull requests, commit convention, how a change gets in
+- `docs/agents/documentation-standard.md` — how to write a document, and the template to copy
 - `docs/` — development-cycle documentation that is true for the whole repo
 - `apps/<app>/AGENTS.md` and `apps/<app>/docs/` — everything that is true for one app only
 
