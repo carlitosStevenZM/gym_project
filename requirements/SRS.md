@@ -1,7 +1,7 @@
 # Lightweight SRS — Gym routine and progress app
 
-**Version:** v1.8 — agreed
-**Date:** October 25, 2026
+**Version:** v1.10 — agreed
+**Date:** October 26, 2026
 **Based on:** [`DISCOVERY.md`](DISCOVERY.md) (the original idea and the two rounds of questions), the [`assets/prototype.html`](assets/prototype.html) prototype, and the **meeting of October 15, 2026**, where the v0 draft was reviewed and the domain model was closed.
 **Status:** 🟢 **Closed.** No inconsistencies, no open points. The data model is in [`DATA-MODEL.md`](DATA-MODEL.md).
 
@@ -80,6 +80,26 @@ These words mean this and nothing else — in the code, in the UI, and in conver
 > 2. **Exercise** is the catalog (what exists). **Exercise record** is reality (what you did). Two separate entities.
 > 3. **Weekly training** is the plan. **Routine session** is what you trained. What happened on a given day is never called an "entrenamiento" — that word is already taken by the plan.
 
+### What not to call them
+
+Every row below is a name that was genuinely used for that concept at some point, which is why it
+is worth forbidding. Using the wrong one is not a style slip: it makes two people talk about
+different tables.
+
+| This | Never call it | Where the wrong name comes from |
+|---|---|---|
+| **Rutina** | rutina semanal, entrenamiento, sesión, día | `DISCOVERY.md` fused the day and the week into "rutina semanal", and that is where the ambiguity started |
+| **Entrenamiento semanal** | programa, rutina semanal, rutina | "Programa" is what `DISCOVERY.md` called it before it was renamed |
+| **Sesión de rutina** | entrenamiento, workout | **The dangerous one.** `DISCOVERY.md` defines *entrenamiento* as "what you actually did on a day", which is this. The SRS gave that word to the plan instead |
+| **Serie** | registro de serie, set | "Registro de serie" is the `DISCOVERY.md` name |
+| **Ejercicio** | registro de ejercicio, movimiento | The catalog entry, not what you did with it |
+| **Registro de ejercicio** | ejercicio | What you did, not the catalog entry |
+
+> **Reading `DISCOVERY.md` is a trap for one word.** It is a frozen archive and is never corrected
+> backwards (that is deliberate), so its glossary still says *entrenamiento* for what this document
+> calls a **sesión de rutina**, and *programa* for what this one calls an **entrenamiento semanal**.
+> When the two disagree, this table wins.
+
 ---
 
 ## 4. Decisions
@@ -128,6 +148,10 @@ Every decision with its origin. The ones from the October 15 meeting are closed.
 | D38 | **PostgreSQL is the database.** `DATA-MODEL.md` already assumes it: `citext`, `timestamptz`, partial unique indexes | Oct 25 |
 | D39 | **One monorepo** holds the backend, the client and the requirements. Shared docs live at the root; each app carries its own architecture and conventions beside its code | Oct 25 |
 | D40 | **Each app lives in `apps/<app>/`**, flat: `apps/mobile` and `apps/backend` today, and anything new lands beside them. No `apps` against `services` split until there is something to split | Oct 25 |
+| D41 | **Every set is sent to the server the moment it is recorded.** The session is created when training starts (`ended_at` null) and closed when it ends, so closing the app mid routine loses nothing | Oct 26 |
+| D42 | **Navigation uses the system's native tabs.** The prototype is the reference for the screens, not a contract for the navigation chrome: it is drawn by the OS and looks different on Android and on iOS | Oct 26 |
+| D43 | **V1 ships with a single theme.** No light and dark, no theme setting. The tokens stay centralised, so adding a second one later is mechanical | Oct 26 |
+| D44 | **The interface goes through i18n from the start**, with a single locale (NF-4). No user-facing literals in screen code | Oct 26 |
 
 ---
 
@@ -477,6 +501,8 @@ All of them are cheap to reverse **as long as the model leaves the door open** �
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-10-26 | v1.10 | Glossary gains a **what not to call them** table (§3): the names each concept was actually called before, and the warning that `DISCOVERY.md` uses *entrenamiento* and *programa* with meanings this document reassigned |
+| 2026-10-26 | v1.9 | Client architecture settled, and the four decisions out of it that are not internal to the client: sets are sent as they are recorded (D41), native tabs and what that means for the prototype (D42), a single theme (D43) and i18n from the start (D44). The rest of the architecture lives in `apps/mobile/` |
 | 2026-10-25 | v1.8 | Monorepo layout settled (D40): one folder per app under `apps/`, each carrying its own `AGENTS.md` and `docs/`. The scaffolding for both apps is in place, with the backend's own rules left as a placeholder for whoever owns it |
 | 2026-10-25 | v1.7 | Stack recorded: **FastAPI** backend and **PostgreSQL** (D37, D38), both already assumed by the data model but never written down, and a **monorepo** (D39). §2.5 updated: the client is React Native + Expo, and Carlos also works on part of the backend |
 | 2026-10-16 | v1.6 | Translated to English (except `DISCOVERY.md`). The full database model is split out into `DATA-MODEL.md`: users, auth identities, settings and catalogs as tables, with keys, constraints and indexes. `DATA-MODEL-EXPLAINED.md` added for Carlos. The prototype is brought in line with the agreed decisions |
