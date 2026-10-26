@@ -1,7 +1,7 @@
 # Lightweight SRS — Gym routine and progress app
 
-**Version:** v1.6 — agreed
-**Date:** October 16, 2026
+**Version:** v1.8 — agreed
+**Date:** October 25, 2026
 **Based on:** [`DISCOVERY.md`](DISCOVERY.md) (the original idea and the two rounds of questions), the [`assets/prototype.html`](assets/prototype.html) prototype, and the **meeting of October 15, 2026**, where the v0 draft was reviewed and the domain model was closed.
 **Status:** 🟢 **Closed.** No inconsistencies, no open points. The data model is in [`DATA-MODEL.md`](DATA-MODEL.md).
 
@@ -47,10 +47,12 @@ Coaches with clients · gym owners · nutrition, calories or body weight · soci
 | | |
 |---|---|
 | **Platform** | Mobile app, Android and iOS |
-| **Technology** | **React Native** |
+| **Client** | **React Native + Expo** |
+| **Backend** | **FastAPI**, with PostgreSQL (D37, D38) |
+| **Repository** | A single monorepo holding both (D39) |
 | **Web** | Not a goal. If React Native produces it, it's a bonus, not a deliverable |
 | **Ruled out** | Plain web and Angular (the project is mobile), Kotlin (and there is no physical Android device to test on) |
-| **Split** | Front end mainly Carlos; back end and data model, Alger |
+| **Split** | Alger on the data model and backend; Carlos on the client and part of the backend |
 
 ---
 
@@ -122,6 +124,10 @@ Every decision with its origin. The ones from the October 15 meeting are closed.
 | D34 | **The catalog is imported from `free-exercise-db`** (MIT license), translated, and **lives in our own database**. No external API is called at runtime | Oct 15 |
 | D35 | **The rest timer lives in Settings and is editable.** It is **one default value that applies to every exercise**; it is not configured per routine or per exercise. If that turns out to be needed, we'll revisit | Oct 15 |
 | D36 | **Max weight is the only progress metric** in V1. No other is added | Oct 15 |
+| D37 | **The backend is FastAPI.** | Oct 25 |
+| D38 | **PostgreSQL is the database.** `DATA-MODEL.md` already assumes it: `citext`, `timestamptz`, partial unique indexes | Oct 25 |
+| D39 | **One monorepo** holds the backend, the client and the requirements. Shared docs live at the root; each app carries its own architecture and conventions beside its code | Oct 25 |
+| D40 | **Each app lives in `apps/<app>/`**, flat: `apps/mobile` and `apps/backend` today, and anything new lands beside them. No `apps` against `services` split until there is something to split | Oct 25 |
 
 ---
 
@@ -471,6 +477,8 @@ All of them are cheap to reverse **as long as the model leaves the door open** �
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-10-25 | v1.8 | Monorepo layout settled (D40): one folder per app under `apps/`, each carrying its own `AGENTS.md` and `docs/`. The scaffolding for both apps is in place, with the backend's own rules left as a placeholder for whoever owns it |
+| 2026-10-25 | v1.7 | Stack recorded: **FastAPI** backend and **PostgreSQL** (D37, D38), both already assumed by the data model but never written down, and a **monorepo** (D39). §2.5 updated: the client is React Native + Expo, and Carlos also works on part of the backend |
 | 2026-10-16 | v1.6 | Translated to English (except `DISCOVERY.md`). The full database model is split out into `DATA-MODEL.md`: users, auth identities, settings and catalogs as tables, with keys, constraints and indexes. `DATA-MODEL-EXPLAINED.md` added for Carlos. The prototype is brought in line with the agreed decisions |
 | 2026-10-15 | v1.5 | Last open point closed: **max weight is the only metric** (D36). The SRS is closed |
 | 2026-10-15 | v1.4 | Eight of the nine open points in §11 closed (D28–D35). Among them, **V1 will not work offline**, contrary to the v0 proposal |
