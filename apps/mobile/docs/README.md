@@ -2,6 +2,20 @@
 
 Development-cycle documentation **for the client only**.
 
+## agents/
+
+The **normative** layer: what new code has to comply with. Everything else in this folder is
+descriptive, meaning it explains how something that already exists works.
+
+| File | |
+|---|---|
+| [`agents/architecture.md`](agents/architecture.md) | The layers, which way they depend, where state lives, and the reasoning behind each call |
+| [`agents/development-rules.md`](agents/development-rules.md) | Tooling, TypeScript settings, imports, naming, styling |
+| [`agents/anti-patterns.md`](agents/anti-patterns.md) | The named wrong shapes, each one the reverse of a discipline rule |
+
+The git workflow is **not** here: it is the same for both apps and lives at
+[`../../../docs/git-workflow.md`](../../../docs/git-workflow.md).
+
 What belongs here: how a feature of this app works once it is built, navigation and state decisions,
 Expo build and release notes, anything about running it on a device.
 
