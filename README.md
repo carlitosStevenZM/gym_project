@@ -35,4 +35,4 @@ No application code yet. The requirements phase is closed.
 | Work on the backend | [`apps/backend/AGENTS.md`](apps/backend/AGENTS.md) |
 | Work in this repo with an agent | [`AGENTS.md`](AGENTS.md) |
 
-The decisions that govern everything are in the SRS, §4, numbered D1 to D40.
+The decisions that govern everything are in the SRS, §4, numbered D1 to D44.
