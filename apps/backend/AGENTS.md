@@ -24,9 +24,9 @@ rest. What is below is the shape and the part that is already settled, not the c
 
 ## Still to write
 
-[`../../docs/AGENT-DOCS-GUIDE.md`](../../docs/AGENT-DOCS-GUIDE.md) is about exactly this job and is
-in Spanish on purpose. Its §6 lists what is worth having from the first commit. For this file that
-means three sections:
+[`../../docs/AGENT-DOCS-GUIDE.md`](../../docs/AGENT-DOCS-GUIDE.md) is about exactly this job. It is
+in Spanish because it predates D45, not as an invitation: what you write is in English. Its §6
+lists what is worth having from the first commit. For this file that means three sections:
 
 - **Architecture:** the layers, the direction they depend in, and a numbered list of discipline
   rules that new code has to pass, each pointing at the decision behind it

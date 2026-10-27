@@ -53,8 +53,13 @@ and carry on.
   and **the developer decides**. A test an agent repaired to make its own work pass is worse than no
   test at all.
 - **Discovered an unwritten rule?** Write it down in the same PR.
-- The product ships in **Spanish only** (SRS · NF-4). Code, identifiers and most docs are in
-  English; the two documents marked *(Spanish)* above are deliberately not, because of who reads them.
+- **Everything written here is in English** (D45): documents, file and folder names, identifiers,
+  commit messages. The product is the exception and ships in **Spanish only** (SRS · NF-4), so
+  user-facing strings, the translated catalog and the Spanish column of the glossary stay Spanish.
+- **Three documents predate D45 and were not translated**: `requirements/DISCOVERY.md`,
+  `requirements/DATA-MODEL-EXPLAINED.md` and `docs/AGENT-DOCS-GUIDE.md`. They are an exception, not
+  a precedent. Editing one of them is done in that document's language, so the document stays
+  coherent; anything new is in English, without exception.
 
 ## Monorepo scoping
 
