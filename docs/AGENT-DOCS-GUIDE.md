@@ -62,7 +62,7 @@ El mejor truco que he visto aquí es que cada término traiga además una lista 
 
 Eso resuelve un problema real. Sin esa lista cada quien usa el sinónimo que le late, y acabas con cuatro nombres para la misma cosa repartidos entre el código, los tickets y las conversaciones. Es justo el enredo que tuvimos con "rutina" y "entrenamiento semanal" antes de separarlos.
 
-Ya tenemos la mitad hecha en el glosario del SRS, que además mapea español (como hablamos) contra inglés (como se nombra en el código). Lo que faltaría es esa columna.
+Ya lo tenemos en el glosario del SRS, que además mapea español (como hablamos) contra inglés (como se nombra en el código). La lista de qué evitar está en su §3, bajo *What not to call them*, y cada fila sale de un nombre que de verdad se usó antes.
 
 ### Las decisiones
 
@@ -74,7 +74,7 @@ Pesan tanto en backend porque ahí las decisiones no se ven en el código. Que l
 
 Hay una instrucción buena para darle al agente: **si lo que vas a proponer contradice una decisión ya registrada, dilo en voz alta en vez de pasarle por encima.**
 
-Nuestra tabla D1 a D36 del SRS es el mismo mecanismo en versión chica. Lo de ustedes puede seguir así un buen rato; el archivo por decisión se justifica cuando una necesita media página de contexto, no una fila de tabla.
+Nuestra tabla D1 a D44 del SRS es el mismo mecanismo en versión chica. Lo de ustedes puede seguir así un buen rato; el archivo por decisión se justifica cuando una necesita media página de contexto, no una fila de tabla.
 
 ### Arquitectura, con reglas de disciplina
 

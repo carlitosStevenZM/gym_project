@@ -26,7 +26,7 @@ and carry on.
 
 ## Read first
 
-- `requirements/SRS.md` — glossary (§3), the 40 numbered decisions (§4), requirements, scope
+- `requirements/SRS.md` — glossary (§3), the 44 numbered decisions (§4), requirements, scope
 - `requirements/DATA-MODEL.md` — tables, keys, constraints, indexes
 
 ## Read when the task touches it
@@ -34,7 +34,8 @@ and carry on.
 - `requirements/DATA-MODEL-EXPLAINED.md` — the same model in prose, no SQL *(Spanish)*
 - `requirements/DISCOVERY.md` — why something was decided *(Spanish)*
 - `requirements/assets/prototype.html` — the 18 screens, in line with the SRS
-- `docs/git-workflow.md` — branches, pull requests, commit convention, how a change gets in
+- `docs/agents/git-workflow.md` — branches, pull requests, commit convention, how a change gets in
+- `docs/agents/documentation-standard.md` — how to write a document, and the template to copy
 - `docs/` — development-cycle documentation that is true for the whole repo
 - `apps/<app>/AGENTS.md` and `apps/<app>/docs/` — everything that is true for one app only
 
@@ -46,6 +47,11 @@ and carry on.
   its doc update is incomplete.
 - **`DATA-MODEL-EXPLAINED.md` moves with `DATA-MODEL.md`.** Two documents about the same model; if
   one lags it is worse than not having it.
+- **An agent never creates or edits a test on its own.** Not unit, not integration, not E2E. It
+  writes one when a developer explicitly asks, following the rules in place; otherwise it may
+  recommend one and stop there. If a change breaks an existing test, it reports which one and why,
+  and **the developer decides**. A test an agent repaired to make its own work pass is worse than no
+  test at all.
 - **Discovered an unwritten rule?** Write it down in the same PR.
 - The product ships in **Spanish only** (SRS · NF-4). Code, identifiers and most docs are in
   English; the two documents marked *(Spanish)* above are deliberately not, because of who reads them.
