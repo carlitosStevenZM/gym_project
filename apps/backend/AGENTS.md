@@ -34,6 +34,6 @@ means three sections:
 - **Decisions:** while one still fits in a table row it goes to SRS §4. A file of its own is for
   when it needs half a page
 
-One open question is waiting in the data model, flagged under `routine_session`: nothing prevents
-two sessions on the same date, and it was never discussed. If one per day is the rule, it needs
-`unique (user_id, session_date)`. Settle it before the first migration, not after.
+The data model's integrity rules are part of the backend contract: `routine_session` allows only
+one session per user and day, and every ordered collection enforces unique `position` values. The
+database schema is responsible for enforcing these constraints (D45).
