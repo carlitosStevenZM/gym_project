@@ -122,6 +122,8 @@ Léelo así: *"En la rutina `rut-7`, el primer ejercicio es el `ej-14` (press de
 
 El `position` es lo que permite arrastrarlos para cambiar el orden. Y **no hay columna de nombre**: el nombre sale del catálogo siguiendo el `exercise_id`.
 
+La posición no se puede repetir dentro de la misma rutina. Así, cada ejercicio ocupa un único lugar en el orden.
+
 **`weekly_training`** — *¿qué semanas armaste?*
 
 | id | user_id | name | is_active |
@@ -157,6 +159,8 @@ Martes, jueves y domingo están vacíos. **Eso es el descanso**: ausencia de rut
 
 Un renglón por día entrenado. La duración no se guarda: se resta `19:53 − 19:05`.
 
+Un usuario solo puede tener una sesión en cada fecha. La base de datos no permite dos renglones de `routine_session` con el mismo usuario y la misma fecha.
+
 Lo del `routine_name` repetido lo explico en el §4, porque parece un error y no lo es.
 
 **`exercise_record`** — *¿qué ejercicios hiciste en esa sesión?*
@@ -168,6 +172,8 @@ Lo del `routine_name` repetido lo explico en el §4, porque parece un error y no
 
 Fíjate bien: apunta al **ejercicio del catálogo** (`ej-14`), **no** al `routine_exercise`. Esto es importantísimo y es el §4.3.
 
+La `position` tampoco se puede repetir dentro de la sesión: cada ejercicio registrado tiene un único lugar en el orden en que se hizo.
+
 **`exercise_set`** — *¿cuánto levantaste en cada serie?*
 
 | exercise_record_id | set_number | reps | weight_kg |
@@ -178,6 +184,8 @@ Fíjate bien: apunta al **ejercicio del catálogo** (`ej-14`), **no** al `routin
 | `reg-201` | 4 | 8 | 67.50 |
 
 **Aquí es donde vive el dato que vale.** Todo lo demás del modelo existe para que estos cuatro renglones tengan sentido y se puedan encontrar después.
+
+Los grupos musculares también tienen una `position` única en el catálogo, para que su orden no tenga duplicados.
 
 ---
 
@@ -320,14 +328,10 @@ Podrían ser columnas y a propósito no lo son. Si se guardaran, habría que aco
 
 - **El diagrama dibujado:** [`assets/data-model.html`](assets/data-model.html). Ábrelo en el navegador. Si pasas el mouse sobre una tabla, se iluminan nada más sus relaciones y las demás se desvanecen — es la forma más fácil de entender una tabla a la vez.
 - **La versión técnica:** [`DATA-MODEL.md`](DATA-MODEL.md). Ahí están los tipos de dato, las reglas que la base de datos hace cumplir sola y por qué cada borrado se comporta como se comporta.
-- **Qué se va a construir:** [`SRS.md`](SRS.md), en inglés. Las decisiones numeradas de la D1 a la D36 están en la sección 4.
+- **Qué se va a construir:** [`SRS.md`](SRS.md), en inglés. Las decisiones numeradas de la D1 a la D45 están en la sección 4.
 
 ---
 
-## 9. Lo único que sigue sin decidir
+## 9. Decisiones cerradas
 
-Nada más una cosa del modelo, y es chica:
-
-**¿Se puede entrenar dos veces el mismo día?** Hoy nada lo impide: podrías tener dos sesiones con la misma fecha. Nunca lo platicamos. Si la regla es una por día, se le pone un candado a la base de datos; si quieres permitir mañana y tarde, se queda como está.
-
-Dinos cuál y queda cerrado.
+Las restricciones de unicidad del modelo están cerradas y se aplican en la base de datos: una sesión por usuario y día, y posiciones únicas dentro de cada colección ordenada.

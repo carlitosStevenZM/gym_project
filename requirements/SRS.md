@@ -153,6 +153,7 @@ Every decision with its origin. The ones from the October 15 meeting are closed.
 | D43 | **V1 ships with a single theme.** No light and dark, no theme setting. The tokens stay centralised, so adding a second one later is mechanical | Oct 26 |
 | D44 | **The interface goes through i18n from the start**, with a single locale (NF-4). No user-facing literals in screen code | Oct 26 |
 | D45 | **The backend uses the settled development contract**: Python 3.12 with `uv`, FastAPI and Pydantic v2, SQLAlchemy async with `asyncpg`, Alembic, Ruff and Pyright; its modular boundaries and development rules live with `apps/backend` | Nov 7 |
+| D46 | **A user can have only one routine session per day, and `position` is unique within every ordered collection that has it** (`RoutineExercise` within a routine, `ExerciseRecord` within a session, and `MuscleGroup` globally) | Nov 6, 2026 |
 
 ---
 
@@ -212,6 +213,8 @@ Exercise  ···································
 3. **Set count and target rep range live on `RoutineExercise`, not on `Exercise`.** Sets and reps are not a property of the exercise, they are programming: the same bench press is 4×6 for strength and 3×12 for hypertrophy — see §10.1.
 
 4. **Date and duration belong to the session, not to an exercise record.** The record only knows which exercise it was and which sets were done — see §10.2.
+
+5. **A user can have only one `RoutineSession` per calendar day.** Every ordered collection has unique positions: `RoutineExercise` within its `Routine`, `ExerciseRecord` within its `RoutineSession`, and `MuscleGroup` across the catalog. The database enforces these rules (D46).
 
 ---
 
@@ -503,6 +506,7 @@ All of them are cheap to reverse **as long as the model leaves the door open** �
 | Date | Version | Change |
 |---|---|---|
 | 2026-11-07 | v1.11 | Backend development contract recorded as **D45** and documented in `apps/backend/docs/agents/development-rules.md`; backend agent guidance and its docs index now link to it |
+| 2026-11-06 | v1.11 | D46 closes the model restrictions: one routine session per user per day, and unique positions within every ordered collection that has them |
 | 2026-10-26 | v1.10 | Glossary gains a **what not to call them** table (§3): the names each concept was actually called before, and the warning that `DISCOVERY.md` uses *entrenamiento* and *programa* with meanings this document reassigned |
 | 2026-10-26 | v1.9 | Client architecture settled, and the four decisions out of it that are not internal to the client: sets are sent as they are recorded (D41), native tabs and what that means for the prototype (D42), a single theme (D43) and i18n from the start (D44). The rest of the architecture lives in `apps/mobile/` |
 | 2026-10-25 | v1.8 | Monorepo layout settled (D40): one folder per app under `apps/`, each carrying its own `AGENTS.md` and `docs/`. The scaffolding for both apps is in place, with the backend's own rules left as a placeholder for whoever owns it |

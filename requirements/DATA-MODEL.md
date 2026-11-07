@@ -1,6 +1,6 @@
 # Data model
 
-**Version:** v1 · October 16, 2026
+**Version:** v1.1 · November 6, 2026
 **Source of truth for:** tables, columns, keys, constraints and indexes.
 **Derived from:** [`SRS.md`](SRS.md) §5 and the decisions in §4. If this document and the SRS disagree, the SRS wins on *what* and this one wins on *how it's stored*.
 
@@ -183,7 +183,7 @@ erDiagram
         uuid id PK
         text slug UK "chest, back, legs, shoulders, arms, abs"
         text name "Spanish label"
-        smallint position
+        smallint position "unique across catalog"
     }
 
     MUSCLE_SUBGROUP {
@@ -260,13 +260,14 @@ The snapshot is on purpose, and it is the opposite call to the one in `routine_e
 
 `ended_at` is null while a session is in progress. Duration is `ended_at - started_at` and is never stored (§10.2).
 
-**Open invariant:** nothing currently prevents two sessions on the same date. The SRS doesn't address it. If one-per-day is the rule, add `unique (user_id, session_date)`; if morning-and-evening should be possible, leave it. Worth settling before the first migration.
+The constraint `unique (user_id, session_date)` allows only one routine session per user and calendar day (D45).
 
 ### `exercise_record`
 
 - `routine_session_id` is `on delete cascade` — deleting a session takes its records and sets with it.
 - `exercise_id` is `on delete restrict`. A catalog exercise that somebody has logged can never be hard-deleted; that's what `exercise.is_active` is for.
 - `position` is the order the exercises were actually logged in. The routine already has an order, but the session keeps its own so the history reads the way the day really went.
+- `unique (routine_session_id, position)` prevents two exercise records in the same session from having the same position (D45).
 
 ### `exercise_set`
 
@@ -280,6 +281,16 @@ The snapshot is on purpose, and it is the opposite call to the one in `routine_e
 - `name` is the translated Spanish label; `name_source` keeps the original English so a bad translation can be traced back.
 - `is_active` retires an exercise without deleting it, which `on delete restrict` above requires.
 - **Cross-table invariant the database can't express in a plain `check`:** `primary_muscle_subgroup_id` must belong to the same `muscle_group_id` as the exercise. Either a trigger or an application rule — pick one, but pick it, because a dumbbell curl filed under "legs" with a "biceps" subgroup will silently wreck the catalog navigation (FR-2).
+
+`muscle_group.position` is unique across the catalog, so the six muscle groups cannot share an order value (D45).
+
+### Ordered positions
+
+Every `position` column is unique within its ordered collection (D45):
+
+- `routine_exercise`: unique within `routine_id`.
+- `exercise_record`: unique within `routine_session_id`.
+- `muscle_group`: unique across the catalog.
 
 ---
 

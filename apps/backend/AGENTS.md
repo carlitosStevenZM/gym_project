@@ -106,3 +106,6 @@ An agent never creates or edits tests unless a developer explicitly asks for it.
 requested, prioritize business rules, ownership and authorization, transaction boundaries,
 repositories, error mapping, endpoints consumed by mobile, migrations and catalog import
 idempotency.
+The data model's integrity rules are part of the backend contract: `routine_session` allows only
+one session per user and day, and every ordered collection enforces unique `position` values. The
+database schema is responsible for enforcing these constraints (D45).
