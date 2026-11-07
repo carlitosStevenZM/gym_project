@@ -19,6 +19,10 @@ implementation.
 - [`../../requirements/DATA-MODEL.md`](../../requirements/DATA-MODEL.md) — tables, constraints and indexes
 - [`docs/agents/architecture.md`](docs/agents/architecture.md) — the modules, layers, boundaries and
   dependency direction
+- [`docs/agents/development-rules.md`](docs/agents/development-rules.md) — tooling, Python, imports,
+  database conventions, naming and tests
+- [`docs/agents/anti-patterns.md`](docs/agents/anti-patterns.md) — the named wrong shapes, one per
+  discipline rule
 - [`docs/`](docs/) — backend operational documentation, once it exists
 
 ## The stack, settled

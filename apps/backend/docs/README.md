@@ -13,6 +13,8 @@ What does not:
 | How the data is stored | [`../../../requirements/DATA-MODEL.md`](../../../requirements/DATA-MODEL.md) |
 | Anything true for both apps | [`../../../docs/`](../../../docs/) |
 | The architecture and layer boundaries of this app | [`agents/architecture.md`](agents/architecture.md) |
+| Development conventions and tooling | [`agents/development-rules.md`](agents/development-rules.md) |
+| Named backend anti-patterns | [`agents/anti-patterns.md`](agents/anti-patterns.md) |
 | The short operational rules of this app | [`../AGENTS.md`](../AGENTS.md) |
 
 Empty for now, on purpose. A document earns its place when the knowledge is hard to rebuild by
