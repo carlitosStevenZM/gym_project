@@ -1,7 +1,7 @@
 # Lightweight SRS — Gym routine and progress app
 
 **Version:** v1.11 — agreed
-**Date:** November 6, 2026
+**Date:** November 7, 2026
 **Based on:** [`DISCOVERY.md`](DISCOVERY.md) (the original idea and the two rounds of questions), the [`assets/prototype.html`](assets/prototype.html) prototype, and the **meeting of October 15, 2026**, where the v0 draft was reviewed and the domain model was closed.
 **Status:** 🟢 **Closed.** No inconsistencies, no open points. The data model is in [`DATA-MODEL.md`](DATA-MODEL.md).
 
@@ -152,7 +152,8 @@ Every decision with its origin. The ones from the October 15 meeting are closed.
 | D42 | **Navigation uses the system's native tabs.** The prototype is the reference for the screens, not a contract for the navigation chrome: it is drawn by the OS and looks different on Android and on iOS | Oct 26 |
 | D43 | **V1 ships with a single theme.** No light and dark, no theme setting. The tokens stay centralised, so adding a second one later is mechanical | Oct 26 |
 | D44 | **The interface goes through i18n from the start**, with a single locale (NF-4). No user-facing literals in screen code | Oct 26 |
-| D45 | **A user can have only one routine session per day, and `position` is unique within every ordered collection that has it** (`RoutineExercise` within a routine, `ExerciseRecord` within a session, and `MuscleGroup` globally) | Nov 6, 2026 |
+| D45 | **The backend uses the settled development contract**: Python 3.12 with `uv`, FastAPI and Pydantic v2, SQLAlchemy async with `asyncpg`, Alembic, Ruff and Pyright; its modular boundaries and development rules live with `apps/backend` | Nov 7 |
+| D46 | **A user can have only one routine session per day, and `position` is unique within every ordered collection that has it** (`RoutineExercise` within a routine, `ExerciseRecord` within a session, and `MuscleGroup` globally) | Nov 6, 2026 |
 
 ---
 
@@ -213,7 +214,7 @@ Exercise  ···································
 
 4. **Date and duration belong to the session, not to an exercise record.** The record only knows which exercise it was and which sets were done — see §10.2.
 
-5. **A user can have only one `RoutineSession` per calendar day.** Every ordered collection has unique positions: `RoutineExercise` within its `Routine`, `ExerciseRecord` within its `RoutineSession`, and `MuscleGroup` across the catalog. The database enforces these rules (D45).
+5. **A user can have only one `RoutineSession` per calendar day.** Every ordered collection has unique positions: `RoutineExercise` within its `Routine`, `ExerciseRecord` within its `RoutineSession`, and `MuscleGroup` across the catalog. The database enforces these rules (D46).
 
 ---
 
@@ -504,7 +505,8 @@ All of them are cheap to reverse **as long as the model leaves the door open** �
 
 | Date | Version | Change |
 |---|---|---|
-| 2026-11-06 | v1.11 | D45 closes the model restrictions: one routine session per user per day, and unique positions within every ordered collection that has them |
+| 2026-11-07 | v1.11 | Backend development contract recorded as **D45** and documented in `apps/backend/docs/agents/development-rules.md`; backend agent guidance and its docs index now link to it |
+| 2026-11-06 | v1.11 | D46 closes the model restrictions: one routine session per user per day, and unique positions within every ordered collection that has them |
 | 2026-10-26 | v1.10 | Glossary gains a **what not to call them** table (§3): the names each concept was actually called before, and the warning that `DISCOVERY.md` uses *entrenamiento* and *programa* with meanings this document reassigned |
 | 2026-10-26 | v1.9 | Client architecture settled, and the four decisions out of it that are not internal to the client: sets are sent as they are recorded (D41), native tabs and what that means for the prototype (D42), a single theme (D43) and i18n from the start (D44). The rest of the architecture lives in `apps/mobile/` |
 | 2026-10-25 | v1.8 | Monorepo layout settled (D40): one folder per app under `apps/`, each carrying its own `AGENTS.md` and `docs/`. The scaffolding for both apps is in place, with the backend's own rules left as a placeholder for whoever owns it |
