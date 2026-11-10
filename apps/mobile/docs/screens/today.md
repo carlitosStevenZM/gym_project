@@ -1,7 +1,7 @@
 # Hoy
 
 Status: Current
-Last verified: 2026-11-09 against feat/mobile-design-system@ae634f0
+Last verified: 2026-11-09 against feat/mobile-design-system@9046b30
 Source of truth: `src/screens/today/TodayScreen.tsx` · `src/screens/today/types.ts`
 
 ## Purpose
