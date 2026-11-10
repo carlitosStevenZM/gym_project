@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { makeStyles } from '@/shared/theme/styles'
 
 import { Divider } from './Divider'
-import { RingBadge } from './RingBadge'
+import { FigureMark } from './FigureMark'
 import { Text } from './Text'
 
 const DAY_COLUMN = 32
@@ -74,7 +74,7 @@ export function UpNextStrip({ items, accessibilityLabel }: UpNextStripProps) {
               </Text>
             </View>
             {item.badge ? (
-              <RingBadge
+              <FigureMark
                 size={56}
                 unit={item.badge.unit}
                 value={item.badge.value}

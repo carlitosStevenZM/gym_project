@@ -176,7 +176,7 @@ export const size: Readonly<Record<SizeToken, number>> = {
   iconLg: 24,
   /** Miniatura circular del ejercicio en una fila. */
   thumb: 40,
-  /** Alto del badge de peso, y su ancho mínimo. Crece a lo ancho cuando la cifra lo pide: un número de cuatro caracteres no cabe en un círculo de 44. */
+  /** Alto mínimo y ancho mínimo de la cifra marcada al final de una fila. La marca es un filete bajo el número, no un aro alrededor: un aro obliga a un círculo, y donde los dígitos son más anchos un círculo es más estrecho. */
   badge: 44,
   /** Diámetro exterior del disco de acción, aro incluido. */
   disc: 112,

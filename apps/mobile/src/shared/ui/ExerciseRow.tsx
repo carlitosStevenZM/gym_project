@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { makeStyles } from '@/shared/theme/styles'
 import { theme } from '@/shared/theme/theme'
 
-import { RingBadge } from './RingBadge'
+import { FigureMark } from './FigureMark'
 import { Text } from './Text'
 import { Touchable } from './Touchable'
 import { ExerciseGlyph } from './icons/ExerciseGlyph'
@@ -112,7 +112,7 @@ export function ExerciseRow({
           {done ? (
             <Icon name="check" size={theme.size.iconMd} tone="ok" />
           ) : (
-            <RingBadge unit={unit} value={weight} variant={isRecord ? 'record' : 'reference'} />
+            <FigureMark unit={unit} value={weight} variant={isRecord ? 'record' : 'reference'} />
           )}
         </View>
       )}
