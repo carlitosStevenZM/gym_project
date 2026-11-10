@@ -28,9 +28,16 @@ const FIGURE: Readonly<Record<RingBadgeVariant, ColorToken>> = {
 const useStyles = makeStyles((t) => ({
   badge: {
     alignItems: 'center',
-    borderRadius: t.radius.circle,
+    /**
+     * A pill, not a circle. Where a figure is widest — the top of its digits — a circle is
+     * at its narrowest: 67.5 needs 35 px and a 44 circle offers 24 there, so the number
+     * runs into the ring. At `radius-pill` the shape stays round and follows its content,
+     * which for a short figure is still a circle.
+     */
+    borderRadius: t.radius.pill,
     borderWidth: t.border.ring,
     justifyContent: 'center',
+    paddingHorizontal: t.space.s2,
   },
   solid: { backgroundColor: t.color.accent },
 }))
@@ -40,7 +47,7 @@ export type RingBadgeProps = {
   value: number | null
   unit?: string
   variant?: RingBadgeVariant
-  /** 56 in a closing strip, 44 in a row, 36 when it is purely informative. */
+  /** The height, and the width a short figure keeps: 56 in a closing strip, 44 in a row. */
   size?: number
 }
 
@@ -65,7 +72,7 @@ export function RingBadge({
       style={[
         s.badge,
         shown === 'solid' ? s.solid : null,
-        { borderColor: theme.color[RING[shown]], height: size, width: size },
+        { borderColor: theme.color[RING[shown]], height: size, minWidth: size },
       ]}
     >
       <Text variant="numericMd" tone={FIGURE[shown]}>

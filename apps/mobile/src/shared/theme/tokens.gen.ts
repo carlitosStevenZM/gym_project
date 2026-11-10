@@ -176,12 +176,12 @@ export const size: Readonly<Record<SizeToken, number>> = {
   iconLg: 24,
   /** Miniatura circular del ejercicio en una fila. */
   thumb: 40,
-  /** Badge de peso con anillo al final de una fila. */
+  /** Alto del badge de peso, y su ancho mínimo. Crece a lo ancho cuando la cifra lo pide: un número de cuatro caracteres no cabe en un círculo de 44. */
   badge: 44,
   /** Diámetro exterior del disco de acción, aro incluido. */
   disc: 112,
-  /** Zona tocable naranja del disco. Por encima del mínimo de 44px con holgura. */
-  discCore: 88,
+  /** Zona tocable naranja del disco. 96 para que la palabra del botón quepa sin tocar el borde: en un círculo, el ancho útil a la altura del texto es menor que el diámetro. */
+  discCore: 96,
   /** Alto de botón pill primario y secundario. */
   buttonH: 52,
   /** Alto de botón cuando es la única acción de la pantalla. */
@@ -209,10 +209,10 @@ export const border: Readonly<Record<BorderToken, number>> = {
   hairline: 1,
   /** Aro de badge y de día de hoy. */
   ring: 2,
-  /** Anillo de progreso del disco de acción. */
+  /** Anillo de progreso del disco de acción. Va por fuera del aro de separación, sobre bg, para que el arco de accent no caiga sobre el núcleo de accent. */
   ringDisc: 4,
-  /** Aro en color bg que separa el disco de la foto que tiene debajo. */
-  gapDisc: 8,
+  /** Aro en color bg que separa el disco del anillo de progreso que lo rodea. */
+  gapDisc: 4,
   /** Grosor del aro de foco y del borde de campo activo. */
   focus: 2,
 } as const

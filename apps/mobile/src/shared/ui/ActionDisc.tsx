@@ -8,7 +8,13 @@ import { Text } from './Text'
 
 const CAPTION_OPACITY = 0.7
 
-const RING_RADIUS = (theme.size.discCore + theme.border.ringDisc) / 2
+/**
+ * The ring is the outermost band of the disc, not a collar on the core. Drawn against the
+ * core, an `accent` arc on an `accent` fill is 1.00:1 and the only thing that reads is the
+ * part that is missing, so the disc looks bitten rather than counted. Out here it sits on
+ * `bg`, at 6.70:1.
+ */
+const RING_RADIUS = (theme.size.disc - theme.border.ringDisc) / 2
 const RING_CENTRE = theme.size.disc / 2
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS
 

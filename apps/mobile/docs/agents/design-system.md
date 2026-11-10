@@ -138,6 +138,19 @@ The design system names its components in Spanish; identifiers in this repo are 
 Plus three pieces the design system does not name, because they are code concerns rather than
 design ones: `Text`, `Touchable` and `Divider`.
 
+## Where the vendored tokens depart from the artifact
+
+`design-system/tokens.json` is normally a verbatim copy of the design system's export. Right now
+it is not: four values were corrected here first, against a device, and **have not been published
+back to the artifact yet**. Until they are, re-exporting from the artifact would undo them.
+
+| Token | Artifact | Here | Why |
+|---|---|---|---|
+| `disc-core` | 88 | **96** | «EMPEZAR» is 79.4 px at `display-sm`. A circle is narrowest exactly where a line of text is widest, so 88 left the word touching the edge |
+| `border-gap-disc` | 8 | **4** | Pays for the core growing, so the disc stays 112 and the composition does not move |
+| `border-ring-disc` | 4 | 4 | Same value, different place: the ring is now the outer band, not a collar on the core |
+| `badge` | 44 (a diameter) | 44 (a height and a minimum width) | 67.5 needs 35 px and a 44 circle offers 24 where the digits are widest |
+
 ## Where the code departs from the design system
 
 Four places, all deliberate.
@@ -148,6 +161,8 @@ Four places, all deliberate.
 | `ChipVidrio` text | 11 px, weight 700 | `caption` (12 px, weight 400) | 11/700 is outside the type scale and appears once. The chip is told apart by its container, not by a bespoke size |
 | Error banner | `danger` at 15 % | `withAlpha(danger, 0.15)` | The system has no `danger-soft` token. `shared/theme/alpha.ts` is the one place the app computes a colour, and it goes away when the token lands |
 | `BotonPill` | Three variants | Four: a `danger` outline | `Dialogo` asks for the destructive action in `danger` and no variant provided it |
+| `BadgeAnillo` | A circle | A pill that is a circle when the figure is short | The shape has to follow the content; `radius-pill` is the system's own vocabulary |
+| `DiscoAccion` | core → ring → gap | core → gap → **ring** | An `accent` arc on an `accent` core is 1.00:1, so the only thing that read was the part that was missing and the disc looked bitten. On `bg` the arc is 6.70:1 |
 
 ## What is not built
 
