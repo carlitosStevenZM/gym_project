@@ -18,8 +18,9 @@ When two sources disagree:
 
 1. `requirements/SRS.md` wins on **what** the product does, and its §4 table is the decision log
 2. `requirements/DATA-MODEL.md` wins on **how data is stored**
-3. `apps/<app>/AGENTS.md` wins on anything specific to that app
-4. Existing code, which is **evidence, not specification**
+3. `design-system/` wins on **how it looks and behaves**, and its `DECISIONS.md` is that log (D50)
+4. `apps/<app>/AGENTS.md` wins on anything specific to that app
+5. Existing code, which is **evidence, not specification**
 
 `requirements/DISCOVERY.md` never wins anything. It is a frozen archive of how the decisions were
 reached, kept for the *why*, and it is never updated backwards.
@@ -29,14 +30,17 @@ and carry on.
 
 ## Read first
 
-- `requirements/SRS.md` — glossary (§3), the 44 numbered decisions (§4), requirements, scope
+- `requirements/SRS.md` — glossary (§3), the numbered decisions (§4), requirements, scope
 - `requirements/DATA-MODEL.md` — tables, keys, constraints, indexes
+- `design-system/README.md` — the brand book, and the index to colour, type, layout and the rest
 
 ## Read when the task touches it
 
 - `requirements/DATA-MODEL-EXPLAINED.md` — the same model in prose, no SQL *(Spanish)*
 - `requirements/DISCOVERY.md` — why something was decided *(Spanish)*
-- `requirements/assets/prototype.html` — the 18 screens, in line with the SRS
+- `requirements/assets/prototype.html` — the 18 screens. The reference for **what is on** each one;
+  how it looks is the design system's (D47)
+- `design-system/tokens.json` — every value in the interface. Changing one here is the only way
 - `docs/agents/git-workflow.md` — branches, pull requests, commit convention, how a change gets in
 - `docs/agents/documentation-standard.md` — how to write a document, and the template to copy
 - `docs/` — development-cycle documentation that is true for the whole repo
@@ -45,7 +49,9 @@ and carry on.
 ## Rules we actually follow
 
 - **A new decision goes into the SRS §4 table**, numbered, with its origin, plus a line in the §13
-  changelog. Not into a comment, not into a commit message.
+  changelog. Not into a comment, not into a commit message. A decision about **how the product
+  looks** goes into `design-system/DECISIONS.md` instead, numbered `DS`; if it also changes what
+  the product does, it goes in both and says so.
 - **Documentation ships in the same commit as the code it describes.** A behaviour change without
   its doc update is incomplete.
 - **`DATA-MODEL-EXPLAINED.md` moves with `DATA-MODEL.md`.** Two documents about the same model; if
@@ -64,8 +70,8 @@ and carry on.
 The backend and the mobile client share the domain and nothing else. One folder per app under
 `apps/`, flat, and new apps land beside them (D40).
 
-- **Shared, and stays at the root:** the glossary, the decision log, the data model, git workflow,
-  this file, the git workflow, and `docs/` for whatever is true of the whole repo.
+- **Shared, and stays at the root:** the glossary, the decision log, the data model, the design
+  system, the git workflow, this file, and `docs/` for whatever is true of the whole repo.
 - **Per app, in its own `AGENTS.md` and its own `docs/` next to its code:** architecture and layers,
   discipline rules, dependency and tooling conventions, testing.
 
@@ -76,3 +82,9 @@ conventions and different failure modes.
 |---|---|
 | Client | [`apps/mobile/AGENTS.md`](apps/mobile/AGENTS.md) |
 | Backend | [`apps/backend/AGENTS.md`](apps/backend/AGENTS.md) |
+
+The design system is at the root even though only the client renders anything today. It is
+product definition — brand, voice, principles, the values themselves — in the same category as
+the SRS, and the day a second client exists it reads the same `tokens.json`. What is specific to
+React Native lives with the client, in
+[`apps/mobile/docs/agents/design-system.md`](apps/mobile/docs/agents/design-system.md).

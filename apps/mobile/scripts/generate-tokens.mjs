@@ -1,9 +1,9 @@
-// Turns the design system export in design-system/tokens.json into
-// src/shared/theme/tokens.gen.ts. Run it with `yarn tokens`.
+// Turns ../../design-system/tokens.json into src/shared/theme/tokens.gen.ts.
+// Run it with `yarn tokens`.
 //
-// The export is the source of truth and this script never edits it. Everything below is
-// mechanical: key casing, unit stripping and the two renames the repo's English-identifier
-// rule forces. If a value looks wrong, it is wrong upstream.
+// The design system at the root of the repo is the source of truth and this script never
+// edits it. Everything below is mechanical: key casing, unit stripping and the two renames
+// the repo's English-identifier rule forces. If a value looks wrong, change it there.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const app = join(here, '..')
-const SOURCE = join(app, 'design-system', 'tokens.json')
+const repo = join(app, '..', '..')
+const SOURCE = join(repo, 'design-system', 'tokens.json')
 const TARGET = join(app, 'src', 'shared', 'theme', 'tokens.gen.ts')
 
 /** Token names the design system writes in Spanish. Identifiers in this repo are English. */

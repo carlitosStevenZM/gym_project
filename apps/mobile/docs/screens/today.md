@@ -1,7 +1,7 @@
 # Hoy
 
 Status: Current
-Last verified: 2026-11-09 against feat/mobile-design-system@9046b30
+Last verified: 2026-11-10 against feat/mobile-design-system, on an Android emulator
 Source of truth: `src/screens/today/TodayScreen.tsx` · `src/screens/today/types.ts`
 
 ## Purpose
@@ -35,14 +35,18 @@ and it is spent before anything is drawn, not after. How the code spends it:
 
 | Budget | Where |
 |---|---|
-| 56 header | `ScreenHeader`, title plus the date pill |
-| 16 air | `content` padding on the ScrollView, `TodayScreen.tsx` |
+| 56 header | `ScreenHeader`, title plus the date pill. It is **inside** the ScrollView (DS6) |
+| 16 air | `body` padding, `TodayScreen.tsx` |
 | 212 window | `HeroWindow`, `heroWindowH` |
-| 52 disc | `afterHero` padding, from `HERO_DISC_OVERHANG` |
+| 60 disc | `afterHero` padding, `HERO_DISC_OVERHANG` plus `space-2` |
 | 50 week | `WeekOverview` → `WeekStrip` |
 | 16 + 240 list | `list` padding plus five `ExerciseRow` at `row-h` |
-| 68 closing strip | `UpNext` → `UpNextStrip` |
+| 24 air | `UpNextStrip`'s own `space-6`, the gap a block boundary takes |
+| 56 closing strip | `UpNext` → `UpNextStrip` |
 | 40 air | `UpNextStrip`'s own `space-10` over the tab bar |
+
+That is 770 against the 761 a 844 px phone offers, so the smallest reference device scrolls by
+nine pixels. Which is fine: the header scrolls with the content anyway.
 
 Which is why `HeroWindow` exports `HERO_DISC_OVERHANG` rather than hiding the 52: whatever follows
 the window has to clear the half of the disc that hangs out of it, and that number has to come
@@ -114,13 +118,16 @@ model, and `WeekOverview` produces «miércoles, hoy, pecho y tríceps».
 
 ## Known caveats
 
-- **Nobody has seen this on a device.** The vertical budget adds up on paper to 758 of the 761
-  available, which means it should fit a 844 px phone without scrolling — unverified. The bottom
-  inset under NativeTabs in particular needs a look.
-- **Dynamic type is untested.** The layout grows, but it has not been checked at the largest
-  system text size.
+- **Only seen on one device.** It has run on an Android emulator at 393 dp, which is where the
+  four fixes in DS3–DS6 came from. Nothing has been checked on iOS, on a small phone, or at the
+  largest system text size.
+- **Three defects of the design system are still visible here**: a planned day looks the same as
+  a rest day, the window has no bottom edge, and the kicker lands where the gradient is almost
+  clear. All three are in the open list in
+  [`../../../../design-system/DECISIONS.md`](../../../../design-system/DECISIONS.md).
 
 ## Related
 
 - [`../agents/design-system.md`](../agents/design-system.md) — the components this screen composes
-- SRS **FR-5**, **FR-6**, **D4**, **D13**, **D21**, **D30**, **D42**, **D44**, **D47**, **D49**
+- [`../../../../design-system/`](../../../../design-system/) — the system this composes
+- SRS **FR-5**, **FR-6**, **D4**, **D13**, **D21**, **D30**, **D42**, **D44**, **D47**, **D49**, **D50**

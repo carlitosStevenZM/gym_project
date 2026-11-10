@@ -1,8 +1,12 @@
 # Design system in code
 
-How the product's design system reaches the screen, and what you are allowed to write when you
-build an interface in this app. The decision behind it is **D47**; the look itself is not defined
-here, it is defined by the design system and vendored into the repo.
+How the product's design system reaches the screen of this app, and what you are allowed to write
+when you build an interface here.
+
+**This document does not define the look.** That is
+[`../../../../design-system/`](../../../../design-system/), at the root of the repo, which owns
+colour, type, space, measurement and behaviour (SRS · D47, D50). This one is the client's half:
+the generator, the styling discipline, and what the components are called.
 
 The short version: **you never type a colour, a length or a font size.** They come from the theme,
 and the theme is generated.
@@ -10,10 +14,7 @@ and the theme is generated.
 ## The chain
 
 ```
-design system (its own export)
-        │  copied verbatim, by hand, when it changes
-        ▼
-design-system/tokens.json              the vendored export · the source of truth in this repo
+design-system/tokens.json              at the ROOT · the source of truth for every value
         │  yarn tokens
         ▼
 src/shared/theme/tokens.gen.ts         GENERATED · the only file in src/ that holds literals
@@ -84,16 +85,21 @@ sites. See [D43](../../../../requirements/SRS.md).
    wording the design system fixes is in `shared/i18n/es.ts` under `ui.*`.
 4. **A disabled control says why.** `PillButton` and `TextField` take `disabledReason` instead of a
    `disabled` boolean, so the rule is the type signature rather than a convention.
-5. **No state is carried by colour alone.** Trained is a fill, today is a ring, a record is a ring
-   plus its place in the list. The feedback tones each carry their own icon.
+5. **No state is carried by colour alone.** Trained is a fill, today is a ring, the best lift is
+   the brightest figure in its column. The feedback tones each carry their own icon.
 6. **44 px of target, always**, even when the drawn thing is smaller. Use `hitSlop`.
+7. **Measure before you fit.** Before a label goes inside a shape, check the longest real string
+   against the width that shape offers *at the height the text sits* — in a circle that is not the
+   diameter. Two of the defects found on the first device run were exactly this.
 
-## When the design system changes
+## Changing a token
 
-1. Replace `design-system/tokens.json` with the new export, verbatim.
+1. Change the value in `design-system/tokens.json`, at the root. Nowhere else.
 2. `yarn tokens` — regenerates and formats `src/shared/theme/tokens.gen.ts`.
 3. `yarn typecheck` — a removed or renamed token is a compile error at every use. That is the whole
    reason the token unions are generated.
+4. If the change overturns something the system used to say, it also takes a numbered line in
+   [`design-system/DECISIONS.md`](../../../../design-system/DECISIONS.md).
 
 The generator does three mechanical things and nothing else, all of them at the top of
 `scripts/generate-tokens.mjs`: it camel-cases the names, strips `px`, and applies two overrides —
@@ -108,7 +114,7 @@ The design system names its components in Spanish; identifiers in this repo are 
 | Design system | In code | |
 |---|---|---|
 | DiscoAccion | `ActionDisc` | |
-| BotonPill | `PillButton` | gained a `danger` variant, see below |
+| BotonPill | `PillButton` | four variants, including `danger` (DS7) |
 | CampoTexto | `TextField` | |
 | StepperPeso | `Stepper` + `SetStepper` | split: one key pair, and the pair of pairs plus its confirmation |
 | SelectorRango | `RangeField` | |
@@ -125,12 +131,12 @@ The design system names its components in Spanish; identifiers in this repo are 
 | Cargando | `Skeleton` + `Spinner` + `PillButton loading` | the three shapes of waiting, as three pieces |
 | Temporizador | `RestTimer` | |
 | FilaEjercicio | `ExerciseRow` | |
-| BadgeAnillo | `FigureMark` | renamed: it draws a rule, not a ring. See below |
+| BadgeAnillo | `FigureMark` | renamed: it draws no ring any more (DS5) |
 | SemanaDias | `WeekStrip` | |
 | GraficaProgreso | `ProgressChart` | |
 | TiraSiguiente | `UpNextStrip` | |
 | CabeceraPantalla | `ScreenHeader` | |
-| Ventana | `HeroWindow` | |
+| Ventana | `HeroWindow` | exports `HERO_DISC_OVERHANG`: whatever follows the window clears the disc |
 | ChipVidrio | `GlassChip` | |
 | EstadoDescanso | `RestDayCard` + `EmptyState` | the rest day, and the other two empty states |
 | BarraPestanas | — | not a component: the OS draws it (D42). The constraint it documents is `tabbarH` |
@@ -138,39 +144,19 @@ The design system names its components in Spanish; identifiers in this repo are 
 Plus three pieces the design system does not name, because they are code concerns rather than
 design ones: `Text`, `Touchable` and `Divider`.
 
-## Where the vendored tokens depart from the artifact
+## The one computed colour
 
-`design-system/tokens.json` is normally a verbatim copy of the design system's export. Right now
-it is not: four values were corrected here first, against a device, and **have not been published
-back to the artifact yet**. Until they are, re-exporting from the artifact would undo them.
-
-| Token | Artifact | Here | Why |
-|---|---|---|---|
-| `disc-core` | 88 | **96** | «EMPEZAR» is 79.4 px at `display-sm`. A circle is narrowest exactly where a line of text is widest, so 88 left the word touching the edge |
-| `border-gap-disc` | 8 | **4** | Pays for the core growing, so the disc stays 112 and the composition does not move |
-| `border-ring-disc` | 4 | 4 | Same value, different place: the ring is now the outer band, not a collar on the core |
-| `badge` | 44 (a diameter) | 44 (a minimum height and width) | The mark stopped being a ring, so the figure stopped needing a circle to live in |
-
-## Where the code departs from the design system
-
-Four places, all deliberate.
-
-| What | The system says | The code does | Why |
-|---|---|---|---|
-| Display face | Take the condensed face from the OS, ship no font files | Ships Barlow Condensed in two weights | **D48.** `AvenirNextCondensed-Medium` and `sans-serif-condensed` are different enough to change the weight of a title. The splash is held until the font is in, which is what the system was protecting against |
-| `ChipVidrio` text | 11 px, weight 700 | `caption` (12 px, weight 400) | 11/700 is outside the type scale and appears once. The chip is told apart by its container, not by a bespoke size |
-| Error banner | `danger` at 15 % | `withAlpha(danger, 0.15)` | The system has no `danger-soft` token. `shared/theme/alpha.ts` is the one place the app computes a colour, and it goes away when the token lands |
-| `BotonPill` | Three variants | Four: a `danger` outline | `Dialogo` asks for the destructive action in `danger` and no variant provided it |
-| `BadgeAnillo` | A figure inside a ringed circle | A figure with a rule underneath (`FigureMark`) | The ring carried exactly one bit — is this your best lift — and charged a circle for it that a four character figure does not fit. A rule carries the same bit, costs no geometry, and is what the system's own first principle asks for: the figure is the ornament, not the box around it |
-| `DiscoAccion` | core → ring → gap | core → gap → **ring** | An `accent` arc on an `accent` core is 1.00:1, so the only thing that read was the part that was missing and the disc looked bitten. On `bg` the arc is 6.70:1 |
+`shared/theme/alpha.ts` exists for a single case: the error banner is specified as `danger` at
+15 % and the system has no token for it. It is the only place in the app that computes a colour
+instead of reading one, and it goes when a `danger-soft` lands.
 
 ## What is not built
 
-- **The screens.** This change delivers the system, not the eighteen screens.
+- **The screens**, except Hoy. See [`../screens/today.md`](../screens/today.md).
 - **The exercise catalogue illustrations** (D34). `ExerciseRow` falls back to `ExerciseGlyph`, the
   stroke barbell, until the catalogue is imported.
-- **The photography bank.** `assets/images/hero-sample.webp` is the design system's filler frame,
-  from Unsplash. See [`../../assets/README.md`](../../assets/README.md).
+- **The photography bank.** `assets/images/hero-sample.webp` is filler. See
+  [`../../assets/README.md`](../../assets/README.md).
 - **Dynamic type.** The layouts grow, but nothing has been checked at the largest system text size
   on a device yet.
 
@@ -196,7 +182,8 @@ Four places, all deliberate.
 
 ## Related
 
+- [`../../../../design-system/`](../../../../design-system/) — the system itself, and its decision log
 - [`architecture.md`](architecture.md) — the layers this sits inside
 - [`development-rules.md`](development-rules.md) — naming, imports, comments
 - [`../../assets/README.md`](../../assets/README.md) — where the fonts and images come from
-- SRS **D42**, **D43**, **D44**, **D47**, **D48**
+- SRS **D42**, **D43**, **D44**, **D47**, **D48**, **D50**

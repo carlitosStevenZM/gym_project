@@ -14,7 +14,8 @@ behind a single line that becomes a domain hook.
 
 ## Authority order
 
-1. The root rules in [`../../AGENTS.md`](../../AGENTS.md), and through it the SRS and the data model
+1. The root rules in [`../../AGENTS.md`](../../AGENTS.md), and through it the SRS, the data model
+   and [`../../design-system/`](../../design-system/)
 2. This file, for anything specific to the client
 3. Existing code, which is **evidence, not specification**
 
@@ -23,7 +24,7 @@ behind a single line that becomes a domain hook.
 - [`docs/agents/architecture.md`](docs/agents/architecture.md) — the layers, which way they depend, and why
 - [`docs/agents/development-rules.md`](docs/agents/development-rules.md) — tooling, TypeScript, lint, naming
 - [`docs/agents/anti-patterns.md`](docs/agents/anti-patterns.md) — the named wrong shapes, one per rule below
-- [`docs/agents/design-system.md`](docs/agents/design-system.md) — how a token reaches the screen, and what you may write when you build an interface
+- [`docs/agents/design-system.md`](docs/agents/design-system.md) — how a token reaches the screen, and what you may write when you build an interface. The system itself is at [`../../design-system/`](../../design-system/)
 
 ## The stack, settled
 
