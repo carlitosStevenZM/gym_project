@@ -28,8 +28,8 @@ const useStyles = makeStyles((t) => ({
 
 export type UpNextItem = {
   key: string
-  /** «VIE» */
-  dayAbbr: string
+  /** «VIE». Absent in the record variant, which has no day. */
+  dayAbbr?: string
   /** «LO QUE VIENE» */
   label: string
   title: string
@@ -58,9 +58,11 @@ export function UpNextStrip({ items, accessibilityLabel }: UpNextStripProps) {
         <Fragment key={item.key}>
           {index > 0 ? <Divider /> : null}
           <View style={s.item}>
-            <Text variant="numericSm" tone="inkMuted" style={s.day}>
-              {item.dayAbbr}
-            </Text>
+            {item.dayAbbr ? (
+              <Text variant="numericSm" tone="inkMuted" style={s.day}>
+                {item.dayAbbr}
+              </Text>
+            ) : null}
             <View style={s.labels}>
               <Text variant="label" tone="inkMuted">
                 {item.label}

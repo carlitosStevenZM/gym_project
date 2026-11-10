@@ -4,11 +4,13 @@ The React Native + Expo client. This file covers **this app only**. For the prod
 data model and the rules that apply to the whole repo, read [`../../AGENTS.md`](../../AGENTS.md)
 first.
 
-**Current state: boilerplate plus the design system.** The project runs in Expo Go, the five tabs
-navigate, and the interface layer is built: tokens generated from the design system's export, the
-theme, and the thirty-four shared components in `src/shared/ui/`. Every screen is still a
-placeholder and there is no business logic, no `domain/` and no API client: the backend does not
-exist yet, so the generated types in rule 8 have nothing to generate from.
+**Current state: the design system, and Hoy built on it.** The project runs in Expo Go, the five
+tabs navigate, and the interface layer is built: tokens generated from the design system's export,
+the theme, and the thirty-four shared components in `src/shared/ui/`. **Hoy** is composed and
+documented in [`docs/screens/today.md`](docs/screens/today.md); the other four screens are
+placeholders. There is no business logic, no `domain/` and no API client — the backend does not
+exist yet, so the generated types in rule 8 have nothing to generate from, and Hoy reads a fixture
+behind a single line that becomes a domain hook.
 
 ## Authority order
 

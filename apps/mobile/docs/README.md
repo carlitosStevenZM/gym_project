@@ -28,9 +28,17 @@ What does not:
 | Anything true for both apps | [`../../../docs/`](../../../docs/) |
 | The layers and discipline rules of this app | [`../AGENTS.md`](../AGENTS.md) |
 
-Nothing descriptive here yet, on purpose. A document earns its place when the knowledge is hard to
-rebuild by reading the code. If someone finds it in thirty seconds by opening a file, don't write
-it.
+## screens/
 
-The asset pipeline is the one exception that lives outside this folder, documented next to the
-files it describes: [`../assets/README.md`](../assets/README.md).
+How a built screen works, one document per screen, and only when the knowledge is hard to rebuild
+by reading the code.
+
+| File | |
+|---|---|
+| [`screens/today.md`](screens/today.md) | The Hoy tab: its five states, how it spends the vertical budget, and what it drops from the prototype |
+
+The asset pipeline lives outside this folder, documented next to the files it describes:
+[`../assets/README.md`](../assets/README.md).
+
+A document earns its place when the knowledge is hard to rebuild by reading the code. If someone
+finds it in thirty seconds by opening a file, don't write it.

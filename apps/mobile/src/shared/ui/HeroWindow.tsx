@@ -12,6 +12,9 @@ import { Text } from './Text'
 /** The text box stops short of the right edge so it never runs under the disc. */
 const TEXT_RIGHT_INSET = 120
 
+/** How far the disc hangs below the frame. Whatever follows the window has to clear it. */
+export const HERO_DISC_OVERHANG = 52
+
 /** Where the gradient is allowed to be see-through: the text never lands this high. */
 const CLEAR_STOP = 0.34
 
@@ -27,7 +30,7 @@ const useStyles = makeStyles((t) => ({
   fill: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
   content: { gap: t.space.s2, padding: t.space.s5, paddingRight: TEXT_RIGHT_INSET },
   chips: { flexDirection: 'row', gap: t.space.s2 },
-  disc: { bottom: -52, position: 'absolute', right: 36, zIndex: t.z.overlap },
+  disc: { bottom: -HERO_DISC_OVERHANG, position: 'absolute', right: 36, zIndex: t.z.overlap },
 }))
 
 export type HeroWindowProps = {

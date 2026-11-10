@@ -75,7 +75,7 @@ export function ExerciseRow({
   return (
     <Touchable
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole="button"
+      accessibilityRole={onPress ? 'button' : 'text'}
       onPress={onPress}
       style={[s.row, withRule ? s.ruled : null]}
     >
