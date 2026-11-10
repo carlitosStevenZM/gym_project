@@ -5,5 +5,5 @@ import { Placeholder } from '@/shared/ui/Placeholder'
 export function RoutinesScreen() {
   const { t } = useTranslation()
 
-  return <Placeholder title={t('tabs.routines')} />
+  return <Placeholder note={t('placeholder.note')} title={t('tabs.routines')} />
 }

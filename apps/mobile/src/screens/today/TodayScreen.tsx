@@ -5,5 +5,5 @@ import { Placeholder } from '@/shared/ui/Placeholder'
 export function TodayScreen() {
   const { t } = useTranslation()
 
-  return <Placeholder title={t('tabs.today')} />
+  return <Placeholder note={t('placeholder.note')} title={t('tabs.today')} />
 }

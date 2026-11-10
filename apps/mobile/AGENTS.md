@@ -4,10 +4,11 @@ The React Native + Expo client. This file covers **this app only**. For the prod
 data model and the rules that apply to the whole repo, read [`../../AGENTS.md`](../../AGENTS.md)
 first.
 
-**Current state: boilerplate only.** The project runs in Expo Go, the five tabs navigate, and the
-tooling is wired. Every screen is a placeholder and there is no business logic, no `domain/` and no
-API client: the backend does not exist yet, so the generated types in rule 8 have nothing to
-generate from.
+**Current state: boilerplate plus the design system.** The project runs in Expo Go, the five tabs
+navigate, and the interface layer is built: tokens generated from the design system's export, the
+theme, and the thirty-four shared components in `src/shared/ui/`. Every screen is still a
+placeholder and there is no business logic, no `domain/` and no API client: the backend does not
+exist yet, so the generated types in rule 8 have nothing to generate from.
 
 ## Authority order
 
@@ -20,6 +21,7 @@ generate from.
 - [`docs/agents/architecture.md`](docs/agents/architecture.md) — the layers, which way they depend, and why
 - [`docs/agents/development-rules.md`](docs/agents/development-rules.md) — tooling, TypeScript, lint, naming
 - [`docs/agents/anti-patterns.md`](docs/agents/anti-patterns.md) — the named wrong shapes, one per rule below
+- [`docs/agents/design-system.md`](docs/agents/design-system.md) — how a token reaches the screen, and what you may write when you build an interface
 
 ## The stack, settled
 
@@ -31,7 +33,7 @@ generate from.
 | Client state | React Context by scope. Zustand only where the exits are countable |
 | API types    | Generated from the backend's OpenAPI, committed                    |
 | Validation   | Zod at the edge of every response                                  |
-| Styling      | `StyleSheet` with own tokens                                       |
+| Styling      | `StyleSheet` over tokens generated from the design system (D47)    |
 | Forms        | react-hook-form with `zodResolver`                                 |
 | Texts        | i18next                                                            |
 | E2E          | Maestro, against mocks                                             |
@@ -67,6 +69,10 @@ Numbered so a review can point at one. Every new piece of code has to pass all o
 12. **Atomise for reading, not for line count.** Fewer lines is not the goal; being understood at a
     glance is. Splitting into small, well named pieces is worth the extra lines every time, and it
     is what makes rule 11 possible.
+13. **No literal colours, lengths or font sizes.** They come from the theme, which is generated
+    from the design system's export. A `#hex`, a `fontSize` or a stray `16` outside
+    `src/shared/theme/` is a bug, not a decision. See
+    [`docs/agents/design-system.md`](docs/agents/design-system.md).
 
 ## About tests
 

@@ -5,5 +5,5 @@ import { Placeholder } from '@/shared/ui/Placeholder'
 export function ProgressScreen() {
   const { t } = useTranslation()
 
-  return <Placeholder title={t('tabs.progress')} />
+  return <Placeholder note={t('placeholder.note')} title={t('tabs.progress')} />
 }

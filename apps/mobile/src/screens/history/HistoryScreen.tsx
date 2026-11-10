@@ -5,5 +5,5 @@ import { Placeholder } from '@/shared/ui/Placeholder'
 export function HistoryScreen() {
   const { t } = useTranslation()
 
-  return <Placeholder title={t('tabs.history')} />
+  return <Placeholder note={t('placeholder.note')} title={t('tabs.history')} />
 }

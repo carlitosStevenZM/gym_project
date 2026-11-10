@@ -1,41 +1,38 @@
-import { useTranslation } from 'react-i18next'
-import { StyleSheet, Text, View } from 'react-native'
+import { View } from 'react-native'
 
-import { color, fontSize, space } from './tokens'
+import { makeStyles } from '@/shared/theme/styles'
 
-type Props = {
+import { Text } from './Text'
+
+const useStyles = makeStyles((t) => ({
+  root: {
+    alignItems: 'center',
+    backgroundColor: t.color.bg,
+    flex: 1,
+    gap: t.space.s2,
+    justifyContent: 'center',
+    padding: t.space.s6,
+  },
+  note: { textAlign: 'center' },
+}))
+
+export type PlaceholderProps = {
   title: string
+  note: string
 }
 
-export function Placeholder({ title }: Props) {
-  const { t } = useTranslation()
+/** Stands in until the screen exists. It has no business logic and no state. */
+export function Placeholder({ title, note }: PlaceholderProps) {
+  const s = useStyles()
 
   return (
-    <View style={styles.root}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.note}>{t('placeholder.note')}</Text>
+    <View style={s.root}>
+      <Text variant="displayLg" tone="ink">
+        {title}
+      </Text>
+      <Text variant="body" tone="inkMuted" style={s.note}>
+        {note}
+      </Text>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space.sm,
-    padding: space.lg,
-    backgroundColor: color.bg,
-  },
-  title: {
-    fontSize: fontSize.display,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-    color: color.ink,
-  },
-  note: {
-    fontSize: fontSize.body,
-    textAlign: 'center',
-    color: color.inkMuted,
-  },
-})

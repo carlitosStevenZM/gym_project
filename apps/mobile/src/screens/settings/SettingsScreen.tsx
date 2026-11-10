@@ -5,5 +5,5 @@ import { Placeholder } from '@/shared/ui/Placeholder'
 export function SettingsScreen() {
   const { t } = useTranslation()
 
-  return <Placeholder title={t('tabs.settings')} />
+  return <Placeholder note={t('placeholder.note')} title={t('tabs.settings')} />
 }
