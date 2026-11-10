@@ -6,9 +6,10 @@ mobile client, one shared PostgreSQL database.
 This file is an **index and a contract**, not a manual. Read the document that applies to your task.
 `CLAUDE.md` is a symlink to this file.
 
-**Current state: the client boilerplate runs, the backend does not exist.** `apps/mobile` is an
-Expo 58 project that starts in Expo Go with five placeholder screens and no business logic.
-`apps/backend` is still empty.
+**Current state: the client has its design system, the backend does not exist.** `apps/mobile` is
+an Expo 58 project that starts in Expo Go with five placeholder screens, no business logic, and a
+full interface layer: tokens generated from the design system's export, and the shared components
+built on them. `apps/backend` is still empty.
 
 ## Authority order
 

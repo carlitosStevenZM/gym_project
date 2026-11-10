@@ -20,8 +20,9 @@ AGENTS.md        index and authority order, for agents and for people
 Each app carries its own `AGENTS.md` and its own `docs/`, beside its code. The root keeps only what
 both of them share.
 
-The client boilerplate runs in Expo Go with placeholder screens. There is no business logic and no
-backend yet. To start it: `cd apps/mobile && yarn install && yarn start`.
+The client runs in Expo Go with placeholder screens and its design system in place: the tokens,
+the theme and the shared components. There is no business logic and no backend yet. To start it:
+`cd apps/mobile && yarn install && yarn start`.
 
 ## Start here
 

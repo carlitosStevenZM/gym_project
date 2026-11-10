@@ -1,7 +1,7 @@
 # Lightweight SRS — Gym routine and progress app
 
-**Version:** v1.11 — agreed
-**Date:** November 7, 2026
+**Version:** v1.12 — agreed
+**Date:** November 9, 2026
 **Based on:** [`DISCOVERY.md`](DISCOVERY.md) (the original idea and the two rounds of questions), the [`assets/prototype.html`](assets/prototype.html) prototype, and the **meeting of October 15, 2026**, where the v0 draft was reviewed and the domain model was closed.
 **Status:** 🟢 **Closed.** No inconsistencies, no open points. The data model is in [`DATA-MODEL.md`](DATA-MODEL.md).
 
@@ -154,6 +154,8 @@ Every decision with its origin. The ones from the October 15 meeting are closed.
 | D44 | **The interface goes through i18n from the start**, with a single locale (NF-4). No user-facing literals in screen code | Oct 26 |
 | D45 | **The backend uses the settled development contract**: Python 3.12 with `uv`, FastAPI and Pydantic v2, SQLAlchemy async with `asyncpg`, Alembic, Ruff and Pyright; its modular boundaries and development rules live with `apps/backend` | Nov 7 |
 | D46 | **A user can have only one routine session per day, and `position` is unique within every ordered collection that has it** (`RoutineExercise` within a routine, `ExerciseRecord` within a session, and `MuscleGroup` globally) | Nov 6, 2026 |
+| D47 | **The client's look comes from the design system, not from the prototype.** The prototype stays the reference for which screens exist and what is on each one; colour, type, spacing, measurement and components come from the design system, whose export is vendored at `apps/mobile/design-system/tokens.json` and generated into code. The design system carries a name of its own, which is **not** the product's: nothing built from it names the app | Nov 9, 2026 |
+| D48 | **The display typeface ships with the app as a font file**, and body text stays on the system font. The design system's own typography page says to take both from the operating system; the condensed faces of iOS and Android differ enough to change the weight of a title, so the condensed one is bundled (two subset faces, ~100 KB) and the splash is held until it is in | Nov 9, 2026 |
 
 ---
 
@@ -505,6 +507,7 @@ All of them are cheap to reverse **as long as the model leaves the door open** �
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-09 | v1.12 | The client's design system lands in the repo: its token export is vendored and generated into `apps/mobile/src/shared/theme/`, and the components are built on it. Two decisions out of it that are not internal to the client: the design system, not the prototype, defines the look (**D47**), and the display typeface ships as a font file (**D48**) |
 | 2026-11-07 | v1.11 | Backend development contract recorded as **D45** and documented in `apps/backend/docs/agents/development-rules.md`; backend agent guidance and its docs index now link to it |
 | 2026-11-06 | v1.11 | D46 closes the model restrictions: one routine session per user per day, and unique positions within every ordered collection that has them |
 | 2026-10-26 | v1.10 | Glossary gains a **what not to call them** table (§3): the names each concept was actually called before, and the warning that `DISCOVERY.md` uses *entrenamiento* and *programa* with meanings this document reassigned |
