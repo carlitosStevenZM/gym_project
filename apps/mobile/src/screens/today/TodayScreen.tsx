@@ -18,7 +18,7 @@ import { TodayTraining } from './components/TodayTraining'
 const useStyles = makeStyles((t) => ({
   root: { backgroundColor: t.color.bg, flex: 1 },
   /** The 16 of air the vertical budget puts between the header and the window. */
-  content: { paddingTop: t.space.s4 },
+  body: { paddingTop: t.space.s4 },
   gutter: { paddingHorizontal: t.space.s5 },
 }))
 
@@ -36,9 +36,17 @@ export function TodayScreen() {
 
   return (
     <View style={s.root}>
-      <ScreenHeader badge={date ? labels.dayAndMonth(date) : undefined} title={t('tabs.today')} />
-      <ScrollView contentContainerStyle={[s.content, { paddingBottom: insets.bottom }]}>
-        <TodayBody view={view} />
+      {/*
+        The header scrolls with the content instead of staying pinned. The system allows no
+        shadow and no elevation, so a pinned header has nothing legal to separate itself with
+        from content sliding underneath, and the join reads as a hard cut. It is also part of
+        the page in the vertical budget, not chrome.
+      */}
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom }}>
+        <ScreenHeader badge={date ? labels.dayAndMonth(date) : undefined} title={t('tabs.today')} />
+        <View style={s.body}>
+          <TodayBody view={view} />
+        </View>
       </ScrollView>
     </View>
   )

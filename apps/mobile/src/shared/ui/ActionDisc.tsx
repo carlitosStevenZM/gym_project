@@ -29,7 +29,7 @@ const useStyles = makeStyles((t) => ({
     borderRadius: t.radius.circle,
     height: t.size.discCore,
     justifyContent: 'center',
-    paddingHorizontal: t.space.s2,
+    paddingHorizontal: t.space.s1,
     width: t.size.discCore,
   },
   pressed: { backgroundColor: t.color.accentPress },

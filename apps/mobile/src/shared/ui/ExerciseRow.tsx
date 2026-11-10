@@ -16,10 +16,13 @@ const useStyles = makeStyles((t) => ({
   row: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: t.space.s3,
     minHeight: t.size.rowH,
     paddingVertical: t.space.s1,
   },
+  /** Tight between the illustration and the name, wider before the figure: a circle's ink
+      runs to its bounding box, so the same gap reads smaller on that side. */
+  leading: { marginRight: t.space.s3 },
+  trailing: { marginLeft: t.space.s4 },
   ruled: { borderBottomColor: t.color.lineSoft, borderBottomWidth: t.border.hairline },
   thumb: {
     alignItems: 'center',
@@ -80,11 +83,11 @@ export function ExerciseRow({
       style={[s.row, withRule ? s.ruled : null]}
     >
       {compact ? (
-        <Text variant="numericSm" tone="inkMuted" style={s.index}>
+        <Text variant="numericSm" tone="inkMuted" style={[s.index, s.leading]}>
           {index}
         </Text>
       ) : (
-        <View style={[s.thumb, done ? s.done : null]}>
+        <View style={[s.thumb, s.leading, done ? s.done : null]}>
           {illustrationUri ? (
             <Image contentFit="cover" source={{ uri: illustrationUri }} style={s.illustration} />
           ) : (
@@ -104,10 +107,14 @@ export function ExerciseRow({
         ) : null}
       </View>
 
-      {compact ? null : done ? (
-        <Icon name="check" size={theme.size.iconMd} tone="ok" />
-      ) : (
-        <RingBadge unit={unit} value={weight} variant={isRecord ? 'record' : 'reference'} />
+      {compact ? null : (
+        <View style={s.trailing}>
+          {done ? (
+            <Icon name="check" size={theme.size.iconMd} tone="ok" />
+          ) : (
+            <RingBadge unit={unit} value={weight} variant={isRecord ? 'record' : 'reference'} />
+          )}
+        </View>
       )}
     </Touchable>
   )

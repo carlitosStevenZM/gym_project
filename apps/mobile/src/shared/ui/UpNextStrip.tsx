@@ -14,6 +14,8 @@ const useStyles = makeStyles((t) => ({
     borderTopColor: t.color.lineSoft,
     borderTopWidth: t.border.hairline,
     marginBottom: t.space.s10,
+    /** The rule separates two blocks, so it gets the gap a block boundary gets. */
+    marginTop: t.space.s6,
     paddingTop: t.space.s3,
   },
   item: {
