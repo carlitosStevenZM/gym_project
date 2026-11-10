@@ -4,8 +4,10 @@ The React Native + Expo client. This file covers **this app only**. For the prod
 data model and the rules that apply to the whole repo, read [`../../AGENTS.md`](../../AGENTS.md)
 first.
 
-**Current state: no code yet.** The architecture below is decided and written; nothing implements it
-so far. When the first code lands, this file stops describing a plan and starts describing reality.
+**Current state: boilerplate only.** The project runs in Expo Go, the five tabs navigate, and the
+tooling is wired. Every screen is a placeholder and there is no business logic, no `domain/` and no
+API client: the backend does not exist yet, so the generated types in rule 8 have nothing to
+generate from.
 
 ## Authority order
 
@@ -21,18 +23,18 @@ so far. When the first code lands, this file stops describing a plan and starts 
 
 ## The stack, settled
 
-| | |
-|---|---|
-| Framework | Expo 58, Expo Router with **NativeTabs** |
-| Language | TypeScript, `strict` plus `noUncheckedIndexedAccess` |
-| Server state | TanStack Query |
+|              |                                                                    |
+| ------------ | ------------------------------------------------------------------ |
+| Framework    | Expo 58, Expo Router with **NativeTabs**                           |
+| Language     | TypeScript, `strict` plus `noUncheckedIndexedAccess`               |
+| Server state | TanStack Query                                                     |
 | Client state | React Context by scope. Zustand only where the exits are countable |
-| API types | Generated from the backend's OpenAPI, committed |
-| Validation | Zod at the edge of every response |
-| Styling | `StyleSheet` with own tokens |
-| Forms | react-hook-form with `zodResolver` |
-| Texts | i18next |
-| E2E | Maestro, against mocks |
+| API types    | Generated from the backend's OpenAPI, committed                    |
+| Validation   | Zod at the edge of every response                                  |
+| Styling      | `StyleSheet` with own tokens                                       |
+| Forms        | react-hook-form with `zodResolver`                                 |
+| Texts        | i18next                                                            |
+| E2E          | Maestro, against mocks                                             |
 
 ## Discipline rules
 
