@@ -15,7 +15,7 @@ implementation.
 
 ## Read when the task touches it
 
-- [`../../requirements/SRS.md`](../../requirements/SRS.md) — product behaviour and decisions D1–D44
+- [`../../requirements/SRS.md`](../../requirements/SRS.md) — product behaviour and decisions D1–D46
 - [`../../requirements/DATA-MODEL.md`](../../requirements/DATA-MODEL.md) — tables, constraints and indexes
 - [`docs/agents/architecture.md`](docs/agents/architecture.md) — the modules, layers, boundaries and
   dependency direction
@@ -97,8 +97,8 @@ stack traces or internal details to the client.
 - `routine_session.routine_name` is a historical snapshot.
 - `ended_at` is null while a session is in progress; duration is calculated, not stored.
 - Progress and previous-session values are queries over recorded sets, not duplicated summaries.
-- Add the agreed restrictions for `routine_session` and the relevant `position` columns before the
-  first migration, then update `DATA-MODEL.md` and `DATA-MODEL-EXPLAINED.md`.
+- The agreed restrictions for `routine_session` and the relevant `position` columns are part of the
+  model contract (D46) and must be included in the first migration.
 
 ## About tests
 
@@ -108,4 +108,4 @@ repositories, error mapping, endpoints consumed by mobile, migrations and catalo
 idempotency.
 The data model's integrity rules are part of the backend contract: `routine_session` allows only
 one session per user and day, and every ordered collection enforces unique `position` values. The
-database schema is responsible for enforcing these constraints (D45).
+database schema is responsible for enforcing these constraints (D46).
