@@ -11,13 +11,6 @@ const NO_VALUE = '—'
 
 export type FigureMarkVariant = 'record' | 'reference' | 'empty' | 'solid'
 
-const MARK: Readonly<Record<FigureMarkVariant, ColorToken>> = {
-  record: 'accent',
-  reference: 'ringTrack',
-  empty: 'ringTrack',
-  solid: 'accent',
-}
-
 const FIGURE: Readonly<Record<FigureMarkVariant, ColorToken>> = {
   record: 'ink',
   reference: 'inkSoft',
@@ -27,22 +20,24 @@ const FIGURE: Readonly<Record<FigureMarkVariant, ColorToken>> = {
 
 const useStyles = makeStyles((t) => ({
   badge: {
-    alignItems: 'center',
+    /** Both lines hang off the right edge, so the column of figures is a column. */
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    paddingHorizontal: t.space.s2,
   },
   /**
-   * A rule under the figure rather than a ring around it. The ring only ever carried one
-   * bit — whether this is your best lift — and paid for it with a circle that a four
-   * character figure does not fit: where digits are widest a 44 circle is 24 across.
-   *
-   * It hugs its content instead of filling a fixed box, so the gap under the figure is the
-   * same whether or not there is a unit beneath it. An underline that floats away from its
-   * text stops reading as an underline.
+   * No mark at all. On this background `accent` and `ink-soft` sit at the same lightness
+   * (1.15:1), so an orange figure never stood out from a grey one on its own — the ring
+   * was carrying the whole signal. What does carry it, at 2.22:1 of pure lightness, is
+   * `ink` against `ink-soft`: the best lift is simply the bright number in the column.
    */
-  underline: { borderBottomWidth: t.border.ring, paddingBottom: t.space.s1 },
-  /** The one place the badge is the subject rather than a mark on a row. */
-  solid: { backgroundColor: t.color.accent, borderRadius: t.radius.pill },
+  plain: {},
+  /** The one place the figure is the subject rather than a reading on a row. */
+  solid: {
+    alignItems: 'center',
+    backgroundColor: t.color.accent,
+    borderRadius: t.radius.pill,
+    paddingHorizontal: t.space.s3,
+  },
 }))
 
 export type FigureMarkProps = {
@@ -50,7 +45,7 @@ export type FigureMarkProps = {
   value: number | null
   unit?: string
   variant?: FigureMarkVariant
-  /** The height, and the width a short figure keeps: 56 in a closing strip, 44 in a row. */
+  /** Only the `solid` variant has a box to size. 56 in a closing strip. */
   size?: number
 }
 
@@ -60,7 +55,8 @@ function format(value: number): string {
 }
 
 /**
- * A figure, its unit, and a rule underneath that says whether it is your best. It is not a
+ * A figure and its unit, with no container around them. Which one is your best lift is
+ * carried by the figure itself, in `ink` against the column's `ink-soft`. It is not a
  * button: if something has to be touched, the row is the target.
  */
 export function FigureMark({
@@ -77,12 +73,7 @@ export function FigureMark({
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={[
-        s.badge,
-        solid ? s.solid : s.underline,
-        { borderBottomColor: theme.color[MARK[shown]], minWidth: size },
-        solid ? { height: size } : null,
-      ]}
+      style={[s.badge, solid ? s.solid : s.plain, solid ? { height: size, minWidth: size } : null]}
     >
       <Text variant="numericMd" tone={FIGURE[shown]}>
         {value === null ? NO_VALUE : format(value)}
