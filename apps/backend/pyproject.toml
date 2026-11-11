@@ -1,0 +1,32 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "CarlitosSteven", email = "carlosestebwork@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.20.1",
+  "asyncpg>=0.32.0",
+  "fastapi[standard]>=0.162.4",
+  "pydantic>=2.14.3",
+  "pydantic-settings>=2.16.2",
+  "pyright>=1.1.414",
+  "pytest>=9.2.0",
+  "ruff>=0.17.4",
+  "sqlalchemy[asyncio]>=2.1.8",
+  "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "app"
+module-root = ""
+
+[tool.pyright]
+include = ["app"]
+venvPath = "."
+venv = ".venv"
