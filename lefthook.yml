@@ -1,0 +1,21 @@
+# Git hooks live at the repo root even though each app owns its tooling, so the
+# jobs below run inside the app they belong to. Install once with:
+#   yarn --cwd apps/mobile lefthook install
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: mobile-lint
+      root: apps/mobile/
+      glob: 'apps/mobile/**/*.{ts,tsx,js,jsx}'
+      run: npx eslint {staged_files}
+
+    - name: mobile-format
+      root: apps/mobile/
+      glob: 'apps/mobile/**/*.{ts,tsx,js,jsx,json}'
+      run: npx prettier --check {staged_files}
+
+    - name: mobile-types
+      root: apps/mobile/
+      glob: 'apps/mobile/**/*.{ts,tsx}'
+      run: npx tsc --noEmit
