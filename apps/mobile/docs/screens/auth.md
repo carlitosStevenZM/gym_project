@@ -57,9 +57,14 @@ durations, and the gap between them is what reads as the field jumping ahead of 
 scroll view in the way there is one movement: the window getting shorter, which the bottom-anchored
 panel rides.
 
-What gives way instead is the title. The head takes whatever is left once the keyboard has had its
-share (`flexShrink: 1`, `overflow: 'hidden'`) and clips from the top rather than pushing the fields
-off the bottom.
+What gives way instead is the title. The head takes whatever is left (`flex: 1`, `overflow: 'hidden'`)
+and its content is **absolutely positioned against the bottom** of that box, so what runs out of room
+is cut from the top: the kicker goes first and the title survives longest. `justifyContent: 'flex-end'`
+does not decide this once the box is shorter than its content, which is a mistake this file already
+made once — it left the kicker half-drawn under the back arrow and the title gone.
+
+`flex: 1` rather than `flexShrink: 1` for the same reason: shrink alone lets the head give way but
+never grow, so the panel never reaches the bottom edge and the whole screen stacks at the top.
 
 That costs a vertical budget this screen has to respect. With the keyboard up, a 851 dp Android
 phone leaves about 531 dp, and Signup's panel is about 512 — which is why the name field carries no
@@ -126,6 +131,9 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 
 ## Design constraints
 
+- **Tapping anywhere that is not a control dismisses the keyboard.** The root is a `Pressable`
+  calling `Keyboard.dismiss`; the inputs and buttons win the touch first because the responder
+  system gives it to the innermost view that wants it.
 - **No scroll view may wrap these inputs.** The platform's scroll-to-focused-field is instant and
   the window resize is not; putting the fields back inside a `ScrollView` brings the desync back.
 - **The panel is bottom-anchored and never shrinks.** The head absorbs instead.
@@ -139,6 +147,10 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
   remaining cause is the platform's own two-stage move, and the fix is
   `react-native-keyboard-controller`, which drives both platforms from one frame-synced value and
   needs a development build: it is not in Expo Go.
+- **The keyboard's travel time belongs to Android, not to this code.** The movement is the window
+  resize, animated by the system's IME; nothing here sets its duration and nothing here can. Taking
+  it over means driving the motion from a frame-synced value, which is `react-native-keyboard-controller`
+  and a development build.
 - **The vertical budget is calculated, not measured.** 531 dp comes from a 851 dp screen minus a
   280 dp keyboard; a shorter phone or a taller keyboard clips the title sooner, and a small phone
   may clip the form.

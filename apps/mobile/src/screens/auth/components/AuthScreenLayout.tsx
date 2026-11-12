@@ -1,7 +1,7 @@
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import authBackdrop from '@/assets/images/auth-sample.webp'
@@ -33,13 +33,24 @@ const useStyles = makeStyles((t) => ({
    * The title gives way, not the form. It takes whatever is left once the keyboard has had
    * its share, and clips from the top rather than pushing the fields off the bottom.
    */
-  head: {
-    flexShrink: 1,
+  /**
+   * `flex: 1`, not `flexShrink: 1`. Shrink alone only lets it give way; it never grows, so the
+   * panel never reaches the bottom edge and the whole screen stacks at the top.
+   */
+  head: { flex: 1, overflow: 'hidden' },
+  /**
+   * Pinned to the bottom of a box that clips, so what runs out of room is cut from the **top**:
+   * the kicker goes first and the title survives longest. `justifyContent: 'flex-end'` does not
+   * decide this once the box is shorter than its content — absolute positioning does.
+   */
+  headInner: {
+    bottom: 0,
     gap: t.space.s2,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
+    left: 0,
     paddingBottom: t.space.s6,
     paddingHorizontal: t.space.s5,
+    position: 'absolute',
+    right: 0,
   },
   /**
    * Nothing here scrolls, and that is the whole point.
@@ -88,9 +99,14 @@ export function AuthScreenLayout({
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={s.root}>
+    /**
+     * Tapping anywhere that is not a control puts the keyboard away. The inputs and buttons
+     * win the touch before this does, because the responder system gives it to the innermost
+     * view that wants it, so nothing here has to opt out.
+     */
+    <Pressable accessible={false} onPress={Keyboard.dismiss} style={s.root}>
       <View style={[s.backdrop, { height: `${BACKDROP_RATIO * 100}%` }]}>
-        <Image source={authBackdrop} style={s.photo} contentFit="cover" transition={240} />
+        <Image source={authBackdrop} style={s.photo} contentFit="cover" transition={120} />
         {/* The system allows exactly one gradient, and this is it: the guarantee that the
             title reads over an arbitrary photograph. */}
         <LinearGradient colors={FADE} locations={[0, FADE_START, 1]} style={s.fade} />
@@ -103,12 +119,14 @@ export function AuthScreenLayout({
         style={s.keyboard}
       >
         <View style={s.head}>
-          <Text variant="label" tone="accent">
-            {kicker}
-          </Text>
-          <Text variant="displayLg" numberOfLines={1}>
-            {title}
-          </Text>
+          <View style={s.headInner}>
+            <Text variant="label" tone="accent" numberOfLines={1}>
+              {kicker}
+            </Text>
+            <Text variant="displayLg" numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
         </View>
 
         <View style={[s.panel, { paddingBottom: insets.bottom + theme.space.s6 }]}>
@@ -126,6 +144,6 @@ export function AuthScreenLayout({
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </Pressable>
   )
 }
