@@ -260,14 +260,14 @@ The snapshot is on purpose, and it is the opposite call to the one in `routine_e
 
 `ended_at` is null while a session is in progress. Duration is `ended_at - started_at` and is never stored (§10.2).
 
-The constraint `unique (user_id, session_date)` allows only one routine session per user and calendar day (D45).
+The constraint `unique (user_id, session_date)` allows only one routine session per user and calendar day (D46).
 
 ### `exercise_record`
 
 - `routine_session_id` is `on delete cascade` — deleting a session takes its records and sets with it.
 - `exercise_id` is `on delete restrict`. A catalog exercise that somebody has logged can never be hard-deleted; that's what `exercise.is_active` is for.
 - `position` is the order the exercises were actually logged in. The routine already has an order, but the session keeps its own so the history reads the way the day really went.
-- `unique (routine_session_id, position)` prevents two exercise records in the same session from having the same position (D45).
+- `unique (routine_session_id, position)` prevents two exercise records in the same session from having the same position (D46).
 
 ### `exercise_set`
 
@@ -282,11 +282,11 @@ The constraint `unique (user_id, session_date)` allows only one routine session 
 - `is_active` retires an exercise without deleting it, which `on delete restrict` above requires.
 - **Cross-table invariant the database can't express in a plain `check`:** `primary_muscle_subgroup_id` must belong to the same `muscle_group_id` as the exercise. Either a trigger or an application rule — pick one, but pick it, because a dumbbell curl filed under "legs" with a "biceps" subgroup will silently wreck the catalog navigation (FR-2).
 
-`muscle_group.position` is unique across the catalog, so the six muscle groups cannot share an order value (D45).
+`muscle_group.position` is unique across the catalog, so the six muscle groups cannot share an order value (D46).
 
 ### Ordered positions
 
-Every `position` column is unique within its ordered collection (D45):
+Every `position` column is unique within its ordered collection (D46):
 
 - `routine_exercise`: unique within `routine_id`.
 - `exercise_record`: unique within `routine_session_id`.

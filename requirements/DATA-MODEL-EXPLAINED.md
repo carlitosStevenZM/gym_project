@@ -328,7 +328,7 @@ Podrían ser columnas y a propósito no lo son. Si se guardaran, habría que aco
 
 - **El diagrama dibujado:** [`assets/data-model.html`](assets/data-model.html). Ábrelo en el navegador. Si pasas el mouse sobre una tabla, se iluminan nada más sus relaciones y las demás se desvanecen — es la forma más fácil de entender una tabla a la vez.
 - **La versión técnica:** [`DATA-MODEL.md`](DATA-MODEL.md). Ahí están los tipos de dato, las reglas que la base de datos hace cumplir sola y por qué cada borrado se comporta como se comporta.
-- **Qué se va a construir:** [`SRS.md`](SRS.md), en inglés. Las decisiones numeradas de la D1 a la D45 están en la sección 4.
+- **Qué se va a construir:** [`SRS.md`](SRS.md), en inglés. Las decisiones numeradas de la D1 a la D46 están en la sección 4.
 
 ---
 
