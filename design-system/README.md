@@ -85,7 +85,8 @@ client's business and lives in
 - **No containers around a figure.** A number is marked by being brighter, not by being boxed
   (**DS5**).
 - **No brand iconography and no emoji.** Icons are stroke; the exercise illustration comes from
-  the catalogue.
+  the catalogue. The single exception is a third party's own sign-in mark, which the system does
+  not get to redraw (**DS9**).
 - **No animation that carries meaning.** Whatever an animation says has to be written as well.
 
 ## Changing it

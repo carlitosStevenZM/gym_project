@@ -63,7 +63,8 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={status === 'anonymous'}>
         <Stack.Screen name="login" />
-        <Stack.Screen name="signup" />
+        {/* Pushed, not replaced, so it slides in and the back gesture takes you to login. */}
+        <Stack.Screen name="signup" options={{ animation: 'slide_from_right' }} />
       </Stack.Protected>
     </Stack>
   )

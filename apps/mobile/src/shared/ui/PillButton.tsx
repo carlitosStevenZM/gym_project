@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { View } from 'react-native'
 
 import { makeStyles } from '@/shared/theme/styles'
@@ -52,6 +53,11 @@ export type PillButtonProps = {
   /** `button-h-lg`, for the only action on the screen. */
   large?: boolean
   icon?: IconName
+  /**
+   * A node before the label, for the one mark the system's stroke icons cannot draw: the
+   * Google G, which ships in its own colours (**DS9**). Prefer `icon` for everything else.
+   */
+  leading?: ReactNode
   /** A line under the button saying what is about to happen. */
   footnote?: string
   loading?: boolean
@@ -70,6 +76,7 @@ export function PillButton({
   block = false,
   large = false,
   icon,
+  leading,
   footnote,
   loading = false,
   disabledReason,
@@ -89,6 +96,7 @@ export function PillButton({
         onPress={onPress}
         style={[s.pill, s[variant], large ? s.large : null, block ? s.block : null]}
       >
+        {leading}
         {icon ? <Icon name={icon} size={ICON_SIZE} tone={tone} /> : null}
         <Text variant="displaySm" tone={tone} style={loading ? s.busyLabel : undefined}>
           {label}

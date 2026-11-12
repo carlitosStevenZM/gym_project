@@ -2,7 +2,7 @@
 
 Status: Current
 Last verified: 2026-11-11 against feat/fake-api@aa3887d, bundled for Android and exercised against a local API
-Source of truth: `src/screens/auth/LoginScreen.tsx` · `src/domain/auth/AuthProvider.tsx` · `src/app/_layout.tsx:45`
+Source of truth: `src/screens/auth/components/AuthScreenLayout.tsx` · `src/domain/auth/AuthProvider.tsx` · `src/app/_layout.tsx`
 
 ## Purpose
 
@@ -45,6 +45,35 @@ treated as an anonymous launch, never as an error the user caused.
 Signing out clears the keychain **and** `queryClient.clear()`. Without that second line the next
 account to sign in on the device reads the previous one's cached queries.
 
+### The composition, and why the keyboard does not tear it
+
+A photograph covers the top 56 % of the screen, with the one gradient the system allows closing it
+into `bg`. The form sits over it, anchored to the **bottom** edge.
+
+That anchoring is load-bearing, not taste. With the content centred, opening the keyboard moves it
+by half the keyboard's height while the ScrollView drags the focused field the whole way, and the
+two disagreeing is exactly what reads as the inputs rising faster than everything else. Anchored to
+the bottom both move 1:1, so there is one movement and nothing to desync — on Android the window
+resize does it, on iOS `KeyboardAvoidingView` does, and either way the content keeps its distance
+from the bottom edge.
+
+The references for this shape are Gymshark and Hevy, which both put a dark gym photograph behind a
+bottom-anchored form.
+
+### The two screens are a stack
+
+Login is the first screen. Signup is **pushed** onto it, so it slides in and the back gesture takes
+you back; replacing it, which is what this used to do, gave no way back and no transition worth the
+name.
+
+Going back is blocked **only while the signup request is in flight**, through `usePreventRemove`,
+which covers the swipe, the Android button and the screen's own arrow at once. After a successful
+signup there is nothing to go back to: the account is authenticated, so the guard below swaps the
+whole anonymous group for the tabs.
+
+The back control is `AuthBackButton` rather than `ScreenHeader`, because these screens carry their
+title in the body and the system pins no header anyway (**DS6**).
+
 ### The routing gate
 
 `src/app/_layout.tsx` renders `Stack.Protected` on `status`. The splash is held until the status
@@ -67,7 +96,9 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 
 - `src/screens/auth/LoginScreen.tsx` — the form, the Google button, the recovery link
 - `src/screens/auth/SignupScreen.tsx` — the same with a name field and the 8-character rule
-- `src/screens/auth/components/AuthScreenLayout.tsx` — the chrome both share
+- `src/screens/auth/components/AuthScreenLayout.tsx` — the backdrop, the gradient and the bottom-anchored scroll
+- `src/screens/auth/components/AuthBackButton.tsx` — the back control, absent while a request is in flight
+- `src/shared/ui/GoogleMark.tsx` — the four-colour G (**DS9**)
 - `src/screens/auth/components/auth-error.ts` — error code to i18n key
 - `src/domain/auth/` — `index.ts` is the only importable file; the rest is private
 - `src/shared/api/http.ts` — the wrapper, `ApiError` and `NetworkError`
@@ -87,15 +118,19 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 
 ## Design constraints
 
-- **The layout centres the form instead of hanging it from a header.** There is no content above it
-  to anchor it, and a top-aligned form leaves the screen bottom-heavy once the keyboard is up.
+- **The form is anchored to the bottom edge, never centred.** Centred content and the ScrollView's
+  own scroll-to-focused-field move by different amounts, which is what makes the screen look like
+  it is coming apart when the keyboard opens.
 - **The splash is held until `status` leaves `loading`.** Removing that shows a login frame to a
   signed-in user on every cold start.
 
 ## Known caveats
 
 - **Only verified through a bundle and against a local API.** The screens have not been seen on a
-  device, on iOS, or at the largest system text size.
+  device, on iOS, or at the largest system text size — and the keyboard behaviour above is the one
+  thing that most wants a real device, since it is a claim about motion.
+- **The backdrop is filler.** `auth-sample.webp` comes from the same unlicensed Unsplash bank as
+  the Hoy photograph; see `../../assets/README.md`.
 - **`expo-secure-store` is unavailable on web**, where every call throws and the catches turn the
   session into an in-memory one. Web is out of scope (SRS §8), so this is recorded, not fixed.
 - **There is no sign-out control yet.** `useAuth().signOut` exists and nothing calls it; it belongs
@@ -105,4 +140,5 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 
 - `../agents/architecture.md` — the layers and why `domain/` exists
 - `../agents/design-system.md` — the components these screens compose
+- `../../../../design-system/DECISIONS.md` — **DS9**, the Google mark exception
 - SRS **FR-1**, **NF-4**, **D43**, **D44**

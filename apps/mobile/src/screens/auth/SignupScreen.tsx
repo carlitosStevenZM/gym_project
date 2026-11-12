@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'expo-router'
+import { useRouter, usePreventRemove } from 'expo-router'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -7,10 +7,11 @@ import { View } from 'react-native'
 import { signupSchema, useSignup, type SignupInput } from '@/domain/auth'
 import { makeStyles } from '@/shared/theme/styles'
 import { Banner } from '@/shared/ui/Banner'
-import { Divider } from '@/shared/ui/Divider'
+import { GoogleMark } from '@/shared/ui/GoogleMark'
 import { PillButton } from '@/shared/ui/PillButton'
 import { TextField } from '@/shared/ui/TextField'
 
+import { AuthBackButton } from './components/AuthBackButton'
 import { AuthScreenLayout } from './components/AuthScreenLayout'
 import { authErrorKey } from './components/auth-error'
 
@@ -34,12 +35,24 @@ export function SignupScreen() {
 
   const submit = handleSubmit((input) => signup.mutate(input))
 
+  /**
+   * Going back mid request would leave the account created and the app on the login screen.
+   * It covers the swipe, the Android back button and the header's own arrow in one place.
+   */
+  usePreventRemove(signup.isPending, () => {})
+
   return (
     <AuthScreenLayout
       footerAction={t('auth.signup.goLogin')}
       footerLabel={t('auth.signup.hasAccount')}
+      header={
+        <AuthBackButton
+          label={t('ui.action.back')}
+          onPress={signup.isPending ? undefined : () => router.back()}
+        />
+      }
       kicker={t('auth.signup.kicker')}
-      onFooterPress={() => router.replace('/login')}
+      onFooterPress={() => router.back()}
       title={t('auth.signup.title')}
     >
       {signup.isError ? <Banner message={t(authErrorKey(signup.error))} tone="error" /> : null}
@@ -105,10 +118,10 @@ export function SignupScreen() {
           loading={signup.isPending || formState.isSubmitting}
           onPress={() => void submit()}
         />
-        <Divider />
         <PillButton
           block
           label={t('auth.signup.google')}
+          leading={<GoogleMark />}
           onPress={googleSignInNotWired}
           variant="outline"
         />

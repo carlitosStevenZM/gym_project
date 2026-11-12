@@ -7,7 +7,7 @@ import { View } from 'react-native'
 import { credentialsSchema, useLogin, type Credentials } from '@/domain/auth'
 import { makeStyles } from '@/shared/theme/styles'
 import { Banner } from '@/shared/ui/Banner'
-import { Divider } from '@/shared/ui/Divider'
+import { GoogleMark } from '@/shared/ui/GoogleMark'
 import { PillButton } from '@/shared/ui/PillButton'
 import { Text } from '@/shared/ui/Text'
 import { TextField } from '@/shared/ui/TextField'
@@ -44,7 +44,7 @@ export function LoginScreen() {
       footerAction={t('auth.login.goSignup')}
       footerLabel={t('auth.login.noAccount')}
       kicker={t('auth.login.kicker')}
-      onFooterPress={() => router.replace('/signup')}
+      onFooterPress={() => router.push('/signup')}
       title={t('auth.login.title')}
     >
       {login.isError ? <Banner message={t(authErrorKey(login.error))} tone="error" /> : null}
@@ -99,10 +99,10 @@ export function LoginScreen() {
           large
           onPress={() => void submit()}
         />
-        <Divider />
         <PillButton
           block
           label={t('auth.login.google')}
+          leading={<GoogleMark />}
           onPress={googleSignInNotWired}
           variant="outline"
         />
