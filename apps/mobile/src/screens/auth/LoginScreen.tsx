@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'expo-router'
+import { useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -10,7 +11,7 @@ import { Banner } from '@/shared/ui/Banner'
 import { GoogleMark } from '@/shared/ui/GoogleMark'
 import { PillButton } from '@/shared/ui/PillButton'
 import { Text } from '@/shared/ui/Text'
-import { TextField } from '@/shared/ui/TextField'
+import { TextField, type TextFieldHandle } from '@/shared/ui/TextField'
 import { Touchable } from '@/shared/ui/Touchable'
 
 import { AuthScreenLayout } from './components/AuthScreenLayout'
@@ -27,6 +28,8 @@ export function LoginScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const login = useLogin()
+
+  const password = useRef<TextFieldHandle>(null)
 
   const { control, handleSubmit, formState } = useForm<Credentials>({
     resolver: zodResolver(credentialsSchema),
@@ -62,6 +65,9 @@ export function LoginScreen() {
               label={t('auth.field.email')}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
+              onSubmitEditing={() => password.current?.focus()}
+              returnKeyType="next"
+              submitBehavior="submit"
               value={field.value}
             />
           )}
@@ -76,6 +82,7 @@ export function LoginScreen() {
               error={fieldState.error ? t(fieldState.error.message ?? '') : undefined}
               label={t('auth.field.password')}
               onBlur={field.onBlur}
+              ref={password}
               onChangeText={field.onChange}
               onSubmitEditing={() => void submit()}
               returnKeyType="go"

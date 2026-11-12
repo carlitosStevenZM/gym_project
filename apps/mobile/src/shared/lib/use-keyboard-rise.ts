@@ -11,10 +11,10 @@ import type { KeyboardEvent } from 'react-native'
  * a shorter clock: `out(cubic)` is already two thirds of the way across in the first third of
  * the time, so the eye sees a fast move that still has frames in it.
  */
-const SPEED = 0.85
+const SPEED = 1
 
 /** Below this there are not enough frames left for any curve to save it. */
-const MIN_DURATION = 160
+const MIN_DURATION = 320
 
 /** Android reports no duration with its events. */
 const ANDROID_DURATION = 220

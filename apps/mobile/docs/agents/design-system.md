@@ -115,7 +115,7 @@ The design system names its components in Spanish; identifiers in this repo are 
 |---|---|---|
 | DiscoAccion | `ActionDisc` | |
 | BotonPill | `PillButton` | four variants, including `danger` (DS7); a `leading` slot for the Google mark (DS9) |
-| CampoTexto | `TextField` | |
+| CampoTexto | `TextField` | takes a `ref` so a form can send the return key to the next field |
 | StepperPeso | `Stepper` + `SetStepper` | split: one key pair, and the pair of pairs plus its confirmation |
 | SelectorRango | `RangeField` | |
 | Interruptor | `Switch` | |

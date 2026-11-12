@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, usePreventRemove } from 'expo-router'
+import { useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -9,7 +10,7 @@ import { makeStyles } from '@/shared/theme/styles'
 import { Banner } from '@/shared/ui/Banner'
 import { GoogleMark } from '@/shared/ui/GoogleMark'
 import { PillButton } from '@/shared/ui/PillButton'
-import { TextField } from '@/shared/ui/TextField'
+import { TextField, type TextFieldHandle } from '@/shared/ui/TextField'
 
 import { AuthBackButton } from './components/AuthBackButton'
 import { AuthScreenLayout } from './components/AuthScreenLayout'
@@ -25,6 +26,9 @@ export function SignupScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const signup = useSignup()
+
+  const email = useRef<TextFieldHandle>(null)
+  const password = useRef<TextFieldHandle>(null)
 
   const { control, handleSubmit, formState } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -68,6 +72,9 @@ export function SignupScreen() {
               label={t('auth.field.displayName')}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
+              onSubmitEditing={() => email.current?.focus()}
+              returnKeyType="next"
+              submitBehavior="submit"
               value={field.value}
             />
           )}
@@ -84,6 +91,10 @@ export function SignupScreen() {
               label={t('auth.field.email')}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
+              onSubmitEditing={() => password.current?.focus()}
+              ref={email}
+              returnKeyType="next"
+              submitBehavior="submit"
               value={field.value}
             />
           )}
@@ -99,6 +110,7 @@ export function SignupScreen() {
               help={t('auth.field.passwordHelp')}
               label={t('auth.field.password')}
               onBlur={field.onBlur}
+              ref={password}
               onChangeText={field.onChange}
               onSubmitEditing={() => void submit()}
               returnKeyType="go"

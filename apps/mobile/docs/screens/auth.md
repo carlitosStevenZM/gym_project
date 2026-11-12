@@ -104,6 +104,11 @@ who is already signed in.
 sentences (`auth.validation.password`), and the screen resolves them — which is what keeps rule 10
 true inside a validation schema.
 
+The return key walks the form: `next` on every field but the last, which carries `go` and
+submits. `submitBehavior="submit"` on the intermediate ones keeps the keyboard up between fields,
+so moving from the email to the password does not flash it closed and open again. `TextField`
+takes a `ref` for this, typed as `TextFieldHandle`, and that is the only reason it has one.
+
 API failures go through `screens/auth/components/auth-error.ts`, which maps an error **code** to a
 key. The API already answers in Spanish, and the screen deliberately ignores that text: a screen
 that renders whatever the server sends has no control over its own copy, and nothing to say when the
@@ -117,6 +122,7 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 - `src/screens/auth/components/AuthScreenLayout.tsx` — the backdrop, the gradient and the bottom-anchored scroll
 - `src/screens/auth/components/AuthBackButton.tsx` — the back control, absent while a request is in flight
 - `src/shared/ui/GoogleMark.tsx` — the four-colour G (**DS9**)
+- `src/shared/lib/use-keyboard-rise.ts` — the single value the body moves by
 - `src/screens/auth/components/auth-error.ts` — error code to i18n key
 - `src/domain/auth/` — `index.ts` is the only importable file; the rest is private
 - `src/shared/api/http.ts` — the wrapper, `ApiError` and `NetworkError`
