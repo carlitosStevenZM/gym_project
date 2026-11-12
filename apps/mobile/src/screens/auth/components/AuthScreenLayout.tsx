@@ -85,9 +85,7 @@ export function AuthScreenLayout({
 
       {header}
 
-      <Animated.View
-        style={[s.body, { transform: [{ translateY: Animated.multiply(keyboard.height, -1) }] }]}
-      >
+      <Animated.View style={[s.body, { transform: [{ translateY: keyboard.offset }] }]}>
         {/* Dropped outright rather than squeezed. Clipping it was two attempts of trying to
             make a title survive a space that cannot hold it, and on iOS the clip did not even
             hold: the kicker ended up drawn over the first field. */}
@@ -102,12 +100,9 @@ export function AuthScreenLayout({
           </View>
         )}
 
-        <View
-          style={[
-            s.panel,
-            { paddingBottom: (keyboard.isOpen ? 0 : insets.bottom) + theme.space.s6 },
-          ]}
-        >
+        {/* Constant. It used to drop the safe-area inset the moment the keyboard opened, which
+            put a 34 px jump at frame one of a move that was already short of frames. */}
+        <View style={[s.panel, { paddingBottom: insets.bottom + theme.space.s6 }]}>
           {children}
 
           <View style={s.footer}>

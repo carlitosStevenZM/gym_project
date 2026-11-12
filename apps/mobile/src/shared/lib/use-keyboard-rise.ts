@@ -1,49 +1,56 @@
 import { useEffect, useState } from 'react'
-import { Animated, Keyboard, Platform } from 'react-native'
+import { Animated, Easing, Keyboard, Platform } from 'react-native'
 import type { KeyboardEvent } from 'react-native'
 
 /**
- * How much of the keyboard's own duration the content takes. Below 1 the content arrives
- * before the keyboard finishes, which reads as the screen keeping up rather than following.
+ * Share of the keyboard's own duration the content takes.
+ *
+ * Not lower, and the reason is frames rather than taste. The keyboard reports 250 ms on iOS;
+ * at a third of that the move gets eight frames to cross some 330 px, which is 40 px a frame
+ * and reads as stepping rather than sliding. What makes it feel quick is the curve below, not
+ * a shorter clock: `out(cubic)` is already two thirds of the way across in the first third of
+ * the time, so the eye sees a fast move that still has frames in it.
  */
-const SPEED = 0.5
+const SPEED = 0.85
 
-/** Below this the move stops reading as a move and starts reading as a jump. */
-const MIN_DURATION = 90
+/** Below this there are not enough frames left for any curve to save it. */
+const MIN_DURATION = 160
 
 /** Android reports no duration with its events. */
 const ANDROID_DURATION = 220
 
 /**
- * The keyboard's height as an animated value, and whether it is up.
+ * How far the content has to rise to clear the keyboard, as an animated value, and whether
+ * the keyboard is up.
  *
  * This exists because `KeyboardAvoidingView` cannot do the job on either platform here. On
  * Android, where Expo draws edge to edge, the window never resizes and the view's `behavior`
  * has nothing to act on, so the fields simply stay under the keyboard. On iOS it waits for
  * the keyboard before it starts, so the content lands a few hundred milliseconds late.
  *
- * Driving it from `keyboardWillShow` starts the move with the keyboard instead of after it,
- * and the height animates on the native thread as a transform.
+ * The value is already negative, so a screen uses it as `translateY` with nothing in between:
+ * one native node, no derived arithmetic to keep on the native thread.
  */
 export function useKeyboardRise() {
   /** Lazily initialised through state, which is what keeps one instance across renders. */
-  const [height] = useState(() => new Animated.Value(0))
+  const [offset] = useState(() => new Animated.Value(0))
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const isIos = Platform.OS === 'ios'
 
     const animate = (to: number, event: KeyboardEvent) => {
-      Animated.timing(height, {
+      Animated.timing(offset, {
         toValue: to,
         duration: Math.max((event.duration || ANDROID_DURATION) * SPEED, MIN_DURATION),
+        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start()
     }
 
     const shown = Keyboard.addListener(isIos ? 'keyboardWillShow' : 'keyboardDidShow', (event) => {
       setIsOpen(true)
-      animate(event.endCoordinates.height, event)
+      animate(-event.endCoordinates.height, event)
     })
     const hidden = Keyboard.addListener(isIos ? 'keyboardWillHide' : 'keyboardDidHide', (event) => {
       setIsOpen(false)
@@ -54,7 +61,7 @@ export function useKeyboardRise() {
       shown.remove()
       hidden.remove()
     }
-  }, [height])
+  }, [offset])
 
-  return { height, isOpen }
+  return { offset, isOpen }
 }

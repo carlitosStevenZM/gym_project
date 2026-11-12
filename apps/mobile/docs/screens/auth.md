@@ -62,9 +62,16 @@ keyboard is on its way, so the content landed about 300 ms late — measured off
 recording, where the keyboard was up by frame 16 and the content was still settling at frame 22.
 
 `useKeyboardRise` (`src/shared/lib/`) replaces it. It listens to `keyboardWillShow` on iOS and
-`keyboardDidShow` on Android, and animates one `translateY` on the native thread over **half** the
-keyboard's own duration, so the content arrives before the keyboard finishes rather than after. The
-whole body is one animated piece; nothing inside it moves on its own.
+`keyboardDidShow` on Android, and animates one `translateY` on the native thread. The whole body is
+one animated piece; nothing inside it moves on its own, and nothing in the tree changes size while
+it moves.
+
+**What makes it feel quick is the curve, not a short clock.** It first ran at half the keyboard's
+duration, which on iOS is 125 ms: eight frames to cross some 330 px, 44 px a frame, and it read as
+stepping rather than sliding. It now takes 85 % of that duration with `Easing.out(Easing.cubic)`,
+which is two thirds of the way across in the first third of the time — thirteen frames, 26 px
+apiece, and a move that still starts fast. Shortening the duration below `MIN_DURATION` trades
+frames for nothing.
 
 The title is **dropped outright while the keyboard is up**, not squeezed. Two earlier attempts tried
 to clip it — `justifyContent: 'flex-end'`, then absolute positioning inside an `overflow: 'hidden'`
@@ -136,7 +143,10 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
   nothing else is; putting the fields back inside a `ScrollView` brings the desync back.
 - **One value moves everything.** The body is a single `Animated.View`. Anything that moves on its
   own schedule — a second animation, a `KeyboardAvoidingView`, a clipping box that reflows — is how
-  this screen broke the last three times.
+  this screen broke the last three times. The panel's `paddingBottom` is constant for that reason:
+  dropping the safe-area inset when the keyboard opened put a 34 px jump at frame one.
+- **The value is stored already negative** and used as `translateY` directly. An
+  `Animated.multiply` in the style is one more node to keep on the native thread for no gain.
 - **The panel is bottom-anchored and never shrinks.** The head absorbs instead.
 - **The splash is held until `status` leaves `loading`.** Removing that shows a login frame to a
   signed-in user on every cold start.
