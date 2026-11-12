@@ -51,27 +51,25 @@ A photograph covers the top 56 % of the screen, with the one gradient the system
 into `bg`. The form sits over it, anchored to the **bottom** edge.
 
 **Nothing on these screens scrolls, and that is deliberate.** A `TextInput` inside a scrollable
-container makes the platform scroll it above the keyboard the instant it takes focus, while the
-window resize that lifts everything else animates over its own ~250 ms. Two movements, two
-durations, and the gap between them is what reads as the field jumping ahead of the screen. With no
-scroll view in the way there is one movement: the window getting shorter, which the bottom-anchored
-panel rides.
+container makes the platform scroll it above the keyboard the instant it takes focus, while
+whatever lifts the rest animates on its own clock. Two movements, two durations, and the gap
+between them is what reads as the field jumping ahead of the screen.
 
-What gives way instead is the title. The head takes whatever is left (`flex: 1`, `overflow: 'hidden'`)
-and its content is **absolutely positioned against the bottom** of that box, so what runs out of room
-is cut from the top: the kicker goes first and the title survives longest. `justifyContent: 'flex-end'`
-does not decide this once the box is shorter than its content, which is a mistake this file already
-made once — it left the kicker half-drawn under the back arrow and the title gone.
+**`KeyboardAvoidingView` is not used either**, because it could not do the job on either platform.
+On Android, where Expo draws edge to edge, the window never resizes, so the view's `behavior` had
+nothing to act on and the fields simply stayed under the keyboard. On iOS it starts only once the
+keyboard is on its way, so the content landed about 300 ms late — measured off a 120 fps screen
+recording, where the keyboard was up by frame 16 and the content was still settling at frame 22.
 
-`flex: 1` rather than `flexShrink: 1` for the same reason: shrink alone lets the head give way but
-never grow, so the panel never reaches the bottom edge and the whole screen stacks at the top.
+`useKeyboardRise` (`src/shared/lib/`) replaces it. It listens to `keyboardWillShow` on iOS and
+`keyboardDidShow` on Android, and animates one `translateY` on the native thread over **half** the
+keyboard's own duration, so the content arrives before the keyboard finishes rather than after. The
+whole body is one animated piece; nothing inside it moves on its own.
 
-That costs a vertical budget this screen has to respect. With the keyboard up, a 851 dp Android
-phone leaves about 531 dp, and Signup's panel is about 512 — which is why the name field carries no
-help line. Adding a field, or a help line, to either screen means checking this number again.
-
-The references for this shape are Gymshark and Hevy, which both put a dark gym photograph behind a
-bottom-anchored form.
+The title is **dropped outright while the keyboard is up**, not squeezed. Two earlier attempts tried
+to clip it — `justifyContent: 'flex-end'`, then absolute positioning inside an `overflow: 'hidden'`
+box — and on iOS the clip did not hold at all: the kicker ended up drawn over the first field.
+A title that cannot fit is a title that should not be there.
 
 ### The two screens are a stack
 
@@ -135,7 +133,10 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
   calling `Keyboard.dismiss`; the inputs and buttons win the touch first because the responder
   system gives it to the innermost view that wants it.
 - **No scroll view may wrap these inputs.** The platform's scroll-to-focused-field is instant and
-  the window resize is not; putting the fields back inside a `ScrollView` brings the desync back.
+  nothing else is; putting the fields back inside a `ScrollView` brings the desync back.
+- **One value moves everything.** The body is a single `Animated.View`. Anything that moves on its
+  own schedule — a second animation, a `KeyboardAvoidingView`, a clipping box that reflows — is how
+  this screen broke the last three times.
 - **The panel is bottom-anchored and never shrinks.** The head absorbs instead.
 - **The splash is held until `status` leaves `loading`.** Removing that shows a login frame to a
   signed-in user on every cold start.
@@ -147,13 +148,12 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
   remaining cause is the platform's own two-stage move, and the fix is
   `react-native-keyboard-controller`, which drives both platforms from one frame-synced value and
   needs a development build: it is not in Expo Go.
-- **The keyboard's travel time belongs to Android, not to this code.** The movement is the window
-  resize, animated by the system's IME; nothing here sets its duration and nothing here can. Taking
-  it over means driving the motion from a frame-synced value, which is `react-native-keyboard-controller`
-  and a development build.
-- **The vertical budget is calculated, not measured.** 531 dp comes from a 851 dp screen minus a
-  280 dp keyboard; a shorter phone or a taller keyboard clips the title sooner, and a small phone
-  may clip the form.
+- **Android moves after the keyboard, not with it.** It has no `keyboardWillShow`, so the rise
+  starts once the keyboard is already up. `react-native-keyboard-controller` is what closes that
+  gap, and it needs a development build: it is not in Expo Go.
+- **The panel has to fit above the keyboard on its own**, since nothing scrolls and the title is
+  already gone by then. Signup's is about 512 dp, which is why the name field carries no help line.
+  Adding a field to either screen means checking that number again.
 - **The backdrop is filler.** `auth-sample.webp` comes from the same unlicensed Unsplash bank as
   the Hoy photograph; see `../../assets/README.md`.
 - **`expo-secure-store` is unavailable on web**, where every call throws and the catches turn the

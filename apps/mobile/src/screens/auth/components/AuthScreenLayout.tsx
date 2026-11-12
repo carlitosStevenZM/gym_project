@@ -1,10 +1,11 @@
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactNode } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native'
+import { Animated, Keyboard, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import authBackdrop from '@/assets/images/auth-sample.webp'
+import { useKeyboardRise } from '@/shared/lib/use-keyboard-rise'
 import { withAlpha } from '@/shared/theme/alpha'
 import { makeStyles } from '@/shared/theme/styles'
 import { theme } from '@/shared/theme/theme'
@@ -28,41 +29,10 @@ const useStyles = makeStyles((t) => ({
   backdrop: { left: 0, position: 'absolute', right: 0, top: 0 },
   photo: { height: '100%', width: '100%' },
   fade: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
-  keyboard: { flex: 1 },
-  /**
-   * The title gives way, not the form. It takes whatever is left once the keyboard has had
-   * its share, and clips from the top rather than pushing the fields off the bottom.
-   */
-  /**
-   * `flex: 1`, not `flexShrink: 1`. Shrink alone only lets it give way; it never grows, so the
-   * panel never reaches the bottom edge and the whole screen stacks at the top.
-   */
-  head: { flex: 1, overflow: 'hidden' },
-  /**
-   * Pinned to the bottom of a box that clips, so what runs out of room is cut from the **top**:
-   * the kicker goes first and the title survives longest. `justifyContent: 'flex-end'` does not
-   * decide this once the box is shorter than its content — absolute positioning does.
-   */
-  headInner: {
-    bottom: 0,
-    gap: t.space.s2,
-    left: 0,
-    paddingBottom: t.space.s6,
-    paddingHorizontal: t.space.s5,
-    position: 'absolute',
-    right: 0,
-  },
-  /**
-   * Nothing here scrolls, and that is the whole point.
-   *
-   * A `TextInput` inside a scrollable container makes the platform scroll it above the
-   * keyboard the instant it takes focus, while the window resize that lifts everything else
-   * animates over its own ~250 ms. Those are two movements with different durations, and the
-   * gap between them is what reads as the field jumping ahead of the screen. With no scroll
-   * view in the way there is exactly one movement: the window getting shorter, which this
-   * panel rides because it is anchored to the bottom.
-   */
-  panel: { flexShrink: 0, gap: t.space.s5, paddingHorizontal: t.space.s5 },
+  /** One piece, moved by one value. Nothing inside it moves on its own. */
+  body: { flex: 1, justifyContent: 'flex-end' },
+  head: { gap: t.space.s2, paddingBottom: t.space.s6, paddingHorizontal: t.space.s5 },
+  panel: { gap: t.space.s5, paddingHorizontal: t.space.s5 },
   footer: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -83,8 +53,8 @@ export type AuthScreenLayoutProps = {
 }
 
 /**
- * The chrome both auth screens share: a photograph the content rises over, and a form
- * anchored to the bottom edge that moves as one piece.
+ * The chrome both auth screens share: a photograph, and a form anchored to the bottom edge
+ * that rises over the keyboard as a single piece.
  */
 export function AuthScreenLayout({
   kicker,
@@ -97,6 +67,7 @@ export function AuthScreenLayout({
 }: AuthScreenLayoutProps) {
   const s = useStyles()
   const insets = useSafeAreaInsets()
+  const keyboard = useKeyboardRise()
 
   return (
     /**
@@ -114,12 +85,14 @@ export function AuthScreenLayout({
 
       {header}
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={s.keyboard}
+      <Animated.View
+        style={[s.body, { transform: [{ translateY: Animated.multiply(keyboard.height, -1) }] }]}
       >
-        <View style={s.head}>
-          <View style={s.headInner}>
+        {/* Dropped outright rather than squeezed. Clipping it was two attempts of trying to
+            make a title survive a space that cannot hold it, and on iOS the clip did not even
+            hold: the kicker ended up drawn over the first field. */}
+        {keyboard.isOpen ? null : (
+          <View style={s.head}>
             <Text variant="label" tone="accent" numberOfLines={1}>
               {kicker}
             </Text>
@@ -127,9 +100,14 @@ export function AuthScreenLayout({
               {title}
             </Text>
           </View>
-        </View>
+        )}
 
-        <View style={[s.panel, { paddingBottom: insets.bottom + theme.space.s6 }]}>
+        <View
+          style={[
+            s.panel,
+            { paddingBottom: (keyboard.isOpen ? 0 : insets.bottom) + theme.space.s6 },
+          ]}
+        >
           {children}
 
           <View style={s.footer}>
@@ -143,7 +121,7 @@ export function AuthScreenLayout({
             </Touchable>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </Animated.View>
     </Pressable>
   )
 }
