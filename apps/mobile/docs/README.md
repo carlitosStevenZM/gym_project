@@ -36,6 +36,7 @@ by reading the code.
 | File | |
 |---|---|
 | [`screens/today.md`](screens/today.md) | The Hoy tab: its five states, how it spends the vertical budget, and what it drops from the prototype |
+| [`screens/auth.md`](screens/auth.md) | Login and Signup: the layers down to the API, the session and where it is stored, and the routing gate |
 
 The asset pipeline lives outside this folder, documented next to the files it describes:
 [`../assets/README.md`](../assets/README.md).

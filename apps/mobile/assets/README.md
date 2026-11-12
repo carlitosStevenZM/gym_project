@@ -67,6 +67,7 @@ two pairs.
 | `splash-icon.png` | 512², the plain mark over the splash's `bg` | `mark-plain.svg` |
 | `favicon.png` | 48², web only | `mark-tile.svg` |
 | `hero-sample.webp` | 1100 × 733, the Hoy window's photograph | see below |
+| `auth-sample.webp` | 900 × 1000, the backdrop behind Login and Signup | see below |
 
 The five icons are flat two-colour images, so they are quantised to a 64-entry palette and written
 as PNG-8. That is what takes `icon.png` from 47 KB to 5 KB with a measured RMSE of 0.08 %.
@@ -92,3 +93,21 @@ magick hero.jpg -strip -quality 75 -define webp:method=6 hero-sample.webp
 
 If the photography never arrives the system still stands: `HeroWindow` without a `source` is a
 `surface` block carrying the same title and the same disc.
+
+### auth-sample.webp is filler too
+
+Same bank, same problem, same reason it is here: to judge the composition. It is a portrait crop
+because it backs a full-width screen rather than a 212 px window, and it was chosen against the
+same three rules — dark, no faces, nothing that fights the orange. The orange wrist wrap in it is
+close enough to `accent` to read as the system's colour rather than against it, which is luck, not
+a requirement.
+
+WebP at quality 72 is 82 KB against the source's 203 KB, at an RMSE of 1.7 %.
+
+```sh
+curl -o auth.jpg 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=900&h=1000&fit=crop&crop=entropy&q=85&fm=jpg'
+magick auth.jpg -strip -quality 72 -define webp:method=6 auth-sample.webp
+```
+
+The gradient over it is not decoration: it is the one gradient the system allows, the guarantee
+that the title reads over an arbitrary photograph.

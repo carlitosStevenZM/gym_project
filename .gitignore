@@ -5,6 +5,10 @@
 *.pem
 *.key
 
+# Local development tooling. Deliberately untracked: it is nobody's dependency
+# and the repo describes it nowhere.
+apps/fake-api/
+
 # backend: Python, FastAPI
 __pycache__/
 *.py[cod]

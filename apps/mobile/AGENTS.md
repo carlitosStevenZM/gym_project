@@ -4,13 +4,18 @@ The React Native + Expo client. This file covers **this app only**. For the prod
 data model and the rules that apply to the whole repo, read [`../../AGENTS.md`](../../AGENTS.md)
 first.
 
-**Current state: the design system, and Hoy built on it.** The project runs in Expo Go, the five
-tabs navigate, and the interface layer is built: tokens generated from the design system's export,
-the theme, and the thirty-four shared components in `src/shared/ui/`. **Hoy** is composed and
-documented in [`docs/screens/today.md`](docs/screens/today.md); the other four screens are
-placeholders. There is no business logic, no `domain/` and no API client — the backend does not
-exist yet, so the generated types in rule 8 have nothing to generate from, and Hoy reads a fixture
-behind a single line that becomes a domain hook.
+**Current state: the design system, Hoy built on it, and the first screens that talk to an API.**
+The project runs in Expo Go, the five tabs navigate, and the interface layer is built: tokens
+generated from the design system's export, the theme, and the thirty-four shared components in
+`src/shared/ui/`. **Hoy** is composed and documented in
+[`docs/screens/today.md`](docs/screens/today.md) and still reads a fixture behind a single line that
+becomes a domain hook; the other three tabs are placeholders.
+
+**Login and Signup** are built, with `domain/auth`, the HTTP wrapper in `src/shared/api/` and the
+session gate at the root — see [`docs/screens/auth.md`](docs/screens/auth.md). The API they talk to
+is whatever `EXPO_PUBLIC_API_URL` points at. Rule 8's generated types have nothing to generate from
+yet, so `domain/auth` carries hand-written Zod schemas and a hand-written mapping; that is the
+exception, and it goes the day the backend publishes OpenAPI.
 
 ## Authority order
 
@@ -34,6 +39,7 @@ behind a single line that becomes a domain hook.
 | Language     | TypeScript, `strict` plus `noUncheckedIndexedAccess`               |
 | Server state | TanStack Query                                                     |
 | Client state | React Context by scope. Zustand only where the exits are countable |
+| Session      | The auth token in `expo-secure-store`, so it survives a relaunch (FR-1)   |
 | API types    | Generated from the backend's OpenAPI, committed                    |
 | Validation   | Zod at the edge of every response                                  |
 | Styling      | `StyleSheet` over tokens generated from the design system (D47)    |

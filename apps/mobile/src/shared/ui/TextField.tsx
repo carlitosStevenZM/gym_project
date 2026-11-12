@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ComponentRef, type Ref } from 'react'
 import { TextInput, View, type TextInputProps } from 'react-native'
 
 import { makeStyles } from '@/shared/theme/styles'
@@ -26,6 +26,9 @@ const useStyles = makeStyles((t) => ({
   message: { alignItems: 'center', flexDirection: 'row', gap: t.space.s2 },
 }))
 
+/** What a screen gets back: enough to move focus, nothing else. */
+export type TextFieldHandle = ComponentRef<typeof TextInput>
+
 export type TextFieldProps = Omit<TextInputProps, 'style' | 'editable'> & {
   /** Always visible above the box. A placeholder is never the label: it leaves on first keypress. */
   label: string
@@ -36,6 +39,8 @@ export type TextFieldProps = Omit<TextInputProps, 'style' | 'editable'> & {
   readOnly?: boolean
   /** Disabling is only possible with a reason the user can read. */
   disabledReason?: string
+  /** So a form can send the return key to the next field. */
+  ref?: Ref<TextFieldHandle>
 }
 
 export function TextField({
@@ -46,6 +51,7 @@ export function TextField({
   disabledReason,
   onBlur,
   onFocus,
+  ref,
   ...rest
 }: TextFieldProps) {
   const s = useStyles()
@@ -79,6 +85,7 @@ export function TextField({
             onFocus?.(event)
           }}
           placeholderTextColor={theme.color.inkMuted}
+          ref={ref}
           style={s.input}
         />
       </View>

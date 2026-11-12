@@ -17,6 +17,7 @@ A rule that has always been true is not here, it is in the page that owns it.
 | DS6 | **A screen header scrolls with its content; it is never pinned.** The system allows no shadow and no elevation, so a pinned header has nothing legal to separate itself with from content sliding underneath, and the join reads as a hard cut. The vertical budget already counts the header as part of the page rather than as chrome | Nov 9, 2026 |
 | DS7 | **The pill button has a fourth variant, `danger`**: outlined, in `danger`. The dialog requires its destructive action in `danger` and the three original variants could not express it | Nov 9, 2026 |
 | DS8 | **The glass chip uses `caption`.** Its recipe asked for 11 px at weight 700, which is outside the type scale and appears exactly once. The chip is told apart by its container, not by a bespoke size | Nov 9, 2026 |
+| DS9 | **The Google mark is the one piece of brand iconography the system carries.** The system says it has none, and that rule stands for everything it draws itself. It cannot stand for a third party's sign-in button: FR-1 requires Google sign-in, and Google's guidelines do not permit a recoloured or redrawn G, so a stroke icon in `ink` is not an option the way a tinted mark would be. The mark ships in its four colours, is never recoloured, and appears **only** on that button. `PillButton` gains a `leading` slot to carry it, because `icon` is tone-driven and cannot express a four-colour fill | Nov 11, 2026 · SRS **FR-1** |
 
 ## Open
 

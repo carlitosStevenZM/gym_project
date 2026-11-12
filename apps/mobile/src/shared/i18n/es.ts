@@ -6,6 +6,55 @@ export const es = {
     progress: 'Progreso',
     settings: 'Ajustes',
   },
+  auth: {
+    login: {
+      title: 'Entrar',
+      kicker: 'Tu entrenamiento, registrado',
+      submit: 'Entrar',
+      google: 'Continuar con Google',
+      forgot: '¿Olvidaste tu contraseña?',
+      noAccount: '¿No tienes cuenta?',
+      goSignup: 'Crear una',
+    },
+    signup: {
+      title: 'Crear cuenta',
+      kicker: 'Empieza a registrar lo que levantas',
+      submit: 'Crear cuenta',
+      google: 'Continuar con Google',
+      hasAccount: '¿Ya tienes cuenta?',
+      goLogin: 'Entrar',
+    },
+    field: {
+      email: 'Correo',
+      password: 'Contraseña',
+      passwordHelp: 'Mínimo 8 caracteres',
+      displayName: 'Nombre',
+    },
+    validation: {
+      email: 'Escribe un correo válido',
+      password: 'La contraseña necesita al menos 8 caracteres',
+      displayName: 'Escribe tu nombre',
+    },
+    // Keyed by the API's error code. The server also sends Spanish, but a screen
+    // that renders whatever the server says has no control over its own copy.
+    error: {
+      unauthenticated: 'Ese correo o esa contraseña no son correctos',
+      email_taken: 'Ese correo ya tiene una cuenta',
+      invalid_input: 'Revisa los datos e intenta de nuevo',
+      network: 'No se pudo conectar. Revisa tu internet',
+      unknown: 'Algo salió mal. Intenta de nuevo',
+    },
+  },
+  settings: {
+    account: 'Cuenta',
+    signOut: 'Cerrar sesión',
+    signOutDescription: 'Tendrás que volver a entrar para registrar series',
+    confirmSignOut: {
+      title: '¿Cerrar sesión?',
+      body: 'Tus series ya registradas se quedan en el servidor. Solo tendrás que volver a entrar.',
+      confirm: 'Cerrar sesión',
+    },
+  },
   placeholder: {
     note: 'Pantalla de prueba. Todavía no hay nada aquí.',
   },
