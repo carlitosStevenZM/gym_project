@@ -29,7 +29,6 @@ export const es = {
       password: 'Contraseña',
       passwordHelp: 'Mínimo 8 caracteres',
       displayName: 'Nombre',
-      displayNameHelp: 'Como quieres que te llamemos',
     },
     validation: {
       email: 'Escribe un correo válido',
@@ -44,6 +43,16 @@ export const es = {
       invalid_input: 'Revisa los datos e intenta de nuevo',
       network: 'No se pudo conectar. Revisa tu internet',
       unknown: 'Algo salió mal. Intenta de nuevo',
+    },
+  },
+  settings: {
+    account: 'Cuenta',
+    signOut: 'Cerrar sesión',
+    signOutDescription: 'Tendrás que volver a entrar para registrar series',
+    confirmSignOut: {
+      title: '¿Cerrar sesión?',
+      body: 'Tus series ya registradas se quedan en el servidor. Solo tendrás que volver a entrar.',
+      confirm: 'Cerrar sesión',
     },
   },
   placeholder: {

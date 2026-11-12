@@ -1,7 +1,7 @@
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import authBackdrop from '@/assets/images/auth-sample.webp'
@@ -30,20 +30,33 @@ const useStyles = makeStyles((t) => ({
   fade: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
   keyboard: { flex: 1 },
   /**
-   * `flex-end` is what keeps the keyboard from tearing the screen apart. Centred content
-   * moves half the keyboard's height while the ScrollView drags the focused field the whole
-   * way, and the two disagreeing is exactly what reads as the inputs rising faster than
-   * everything else. Anchored to the bottom, both move 1:1 and there is nothing to desync.
+   * The title gives way, not the form. It takes whatever is left once the keyboard has had
+   * its share, and clips from the top rather than pushing the fields off the bottom.
    */
-  content: { flexGrow: 1, justifyContent: 'flex-end', paddingHorizontal: t.space.s5 },
-  head: { gap: t.space.s2, marginBottom: t.space.s6 },
-  form: { gap: t.space.s5 },
+  head: {
+    flexShrink: 1,
+    gap: t.space.s2,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    paddingBottom: t.space.s6,
+    paddingHorizontal: t.space.s5,
+  },
+  /**
+   * Nothing here scrolls, and that is the whole point.
+   *
+   * A `TextInput` inside a scrollable container makes the platform scroll it above the
+   * keyboard the instant it takes focus, while the window resize that lifts everything else
+   * animates over its own ~250 ms. Those are two movements with different durations, and the
+   * gap between them is what reads as the field jumping ahead of the screen. With no scroll
+   * view in the way there is exactly one movement: the window getting shorter, which this
+   * panel rides because it is anchored to the bottom.
+   */
+  panel: { flexShrink: 0, gap: t.space.s5, paddingHorizontal: t.space.s5 },
   footer: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: t.space.s2,
     justifyContent: 'center',
-    marginTop: t.space.s6,
   },
 }))
 
@@ -60,7 +73,7 @@ export type AuthScreenLayoutProps = {
 
 /**
  * The chrome both auth screens share: a photograph the content rises over, and a form
- * anchored to the bottom edge.
+ * anchored to the bottom edge that moves as one piece.
  */
 export function AuthScreenLayout({
   kicker,
@@ -89,19 +102,17 @@ export function AuthScreenLayout({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={s.keyboard}
       >
-        <ScrollView
-          contentContainerStyle={[s.content, { paddingBottom: insets.bottom + theme.space.s8 }]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={s.head}>
-            <Text variant="label" tone="accent">
-              {kicker}
-            </Text>
-            <Text variant="displayLg">{title}</Text>
-          </View>
+        <View style={s.head}>
+          <Text variant="label" tone="accent">
+            {kicker}
+          </Text>
+          <Text variant="displayLg" numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
 
-          <View style={s.form}>{children}</View>
+        <View style={[s.panel, { paddingBottom: insets.bottom + theme.space.s6 }]}>
+          {children}
 
           <View style={s.footer}>
             <Text variant="caption" tone="inkMuted">
@@ -113,7 +124,7 @@ export function AuthScreenLayout({
               </Text>
             </Touchable>
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </View>
   )

@@ -50,12 +50,20 @@ account to sign in on the device reads the previous one's cached queries.
 A photograph covers the top 56 % of the screen, with the one gradient the system allows closing it
 into `bg`. The form sits over it, anchored to the **bottom** edge.
 
-That anchoring is load-bearing, not taste. With the content centred, opening the keyboard moves it
-by half the keyboard's height while the ScrollView drags the focused field the whole way, and the
-two disagreeing is exactly what reads as the inputs rising faster than everything else. Anchored to
-the bottom both move 1:1, so there is one movement and nothing to desync — on Android the window
-resize does it, on iOS `KeyboardAvoidingView` does, and either way the content keeps its distance
-from the bottom edge.
+**Nothing on these screens scrolls, and that is deliberate.** A `TextInput` inside a scrollable
+container makes the platform scroll it above the keyboard the instant it takes focus, while the
+window resize that lifts everything else animates over its own ~250 ms. Two movements, two
+durations, and the gap between them is what reads as the field jumping ahead of the screen. With no
+scroll view in the way there is one movement: the window getting shorter, which the bottom-anchored
+panel rides.
+
+What gives way instead is the title. The head takes whatever is left once the keyboard has had its
+share (`flexShrink: 1`, `overflow: 'hidden'`) and clips from the top rather than pushing the fields
+off the bottom.
+
+That costs a vertical budget this screen has to respect. With the keyboard up, a 851 dp Android
+phone leaves about 531 dp, and Signup's panel is about 512 — which is why the name field carries no
+help line. Adding a field, or a help line, to either screen means checking this number again.
 
 The references for this shape are Gymshark and Hevy, which both put a dark gym photograph behind a
 bottom-anchored form.
@@ -118,23 +126,28 @@ server says nothing at all. Three codes are mapped — `unauthenticated`, `email
 
 ## Design constraints
 
-- **The form is anchored to the bottom edge, never centred.** Centred content and the ScrollView's
-  own scroll-to-focused-field move by different amounts, which is what makes the screen look like
-  it is coming apart when the keyboard opens.
+- **No scroll view may wrap these inputs.** The platform's scroll-to-focused-field is instant and
+  the window resize is not; putting the fields back inside a `ScrollView` brings the desync back.
+- **The panel is bottom-anchored and never shrinks.** The head absorbs instead.
 - **The splash is held until `status` leaves `loading`.** Removing that shows a login frame to a
   signed-in user on every cold start.
 
 ## Known caveats
 
-- **Only verified through a bundle and against a local API.** The screens have not been seen on a
-  device, on iOS, or at the largest system text size — and the keyboard behaviour above is the one
-  thing that most wants a real device, since it is a claim about motion.
+- **The keyboard behaviour has been wrong once already.** The first attempt blamed the layout's
+  centring and only changed that, and the desync survived on a device. If it survives again the
+  remaining cause is the platform's own two-stage move, and the fix is
+  `react-native-keyboard-controller`, which drives both platforms from one frame-synced value and
+  needs a development build: it is not in Expo Go.
+- **The vertical budget is calculated, not measured.** 531 dp comes from a 851 dp screen minus a
+  280 dp keyboard; a shorter phone or a taller keyboard clips the title sooner, and a small phone
+  may clip the form.
 - **The backdrop is filler.** `auth-sample.webp` comes from the same unlicensed Unsplash bank as
   the Hoy photograph; see `../../assets/README.md`.
 - **`expo-secure-store` is unavailable on web**, where every call throws and the catches turn the
   session into an in-memory one. Web is out of scope (SRS §8), so this is recorded, not fixed.
-- **There is no sign-out control yet.** `useAuth().signOut` exists and nothing calls it; it belongs
-  to Ajustes (FR-9).
+- **Signing out lives in Ajustes**, which is otherwise still a placeholder: the weekly training
+  selector and the rest value from FR-9 are not built.
 
 ## Related
 

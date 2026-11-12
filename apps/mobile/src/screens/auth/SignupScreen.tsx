@@ -65,7 +65,6 @@ export function SignupScreen() {
             <TextField
               autoComplete="name"
               error={fieldState.error ? t(fieldState.error.message ?? '') : undefined}
-              help={t('auth.field.displayNameHelp')}
               label={t('auth.field.displayName')}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
