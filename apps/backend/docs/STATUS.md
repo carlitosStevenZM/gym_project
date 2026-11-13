@@ -1,6 +1,6 @@
 # Backend status
 
-Last updated: 2026-11-11
+Last updated: 2026-11-13
 
 ## Current phase
 
@@ -29,14 +29,16 @@ Backend project bootstrap.
 - Created `app/infrastructure/database.py` for the asynchronous SQLAlchemy engine and sessions.
 - Added SQLAlchemy asyncio support with `sqlalchemy[asyncio]`.
 - Verified the connection to Neon with `SELECT 1`.
+- Added `scripts/check_database.py` to verify the database connection and report the current database and user.
+- Understood conceptually how `config.py` loads settings and how `database.py` creates the async engine and sessions.
 
 ## Current task
 
-Understand conceptually the new SQLAlchemy configuration files: `config.py` and `database.py`.
+Configure Alembic using the existing SQLAlchemy metadata and database settings.
 
 ## Next tasks
 
-1. Configure Alembic using the existing SQLAlchemy metadata and database settings.
+1. Create the initial Alembic migration.
 
 ## Important rules
 
