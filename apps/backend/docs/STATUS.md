@@ -1,6 +1,6 @@
 # Backend status
 
-Last updated: 2026-11-13
+Last updated: 2026-11-17
 
 ## Current phase
 
@@ -31,14 +31,20 @@ Backend project bootstrap.
 - Verified the connection to Neon with `SELECT 1`.
 - Added `scripts/check_database.py` to verify the database connection and report the current database and user.
 - Understood conceptually how `config.py` loads settings and how `database.py` creates the async engine and sessions.
+- Created the SQLAlchemy declarative base at `app/infrastructure/models/base.py`.
+- Initialized the Alembic directory and configuration.
+- Configured Alembic to use the async database connection and `Base.metadata`.
+- Removed the placeholder database URL from `alembic.ini`; the real URL remains in `.env`.
 
 ## Current task
 
-Configure Alembic using the existing SQLAlchemy metadata and database settings.
+Finish configuring Alembic and verify the database connection. This task is partially complete.
 
 ## Next tasks
 
-1. Create the initial Alembic migration.
+1. Investigate why saving `.env` adds a trailing space to the `ssl=require` parameter.
+2. Verify the database connection through Alembic.
+3. Create the initial Alembic migration.
 
 ## Important rules
 
@@ -61,8 +67,11 @@ Configure Alembic using the existing SQLAlchemy metadata and database settings.
 
 ## Blockers
 
-None.
+- Alembic database verification is still pending.
+- The `.env` `ssl` parameter has been saved with a trailing space and needs investigation.
 
 ## Handoff
 
-Start by understanding how `config.py` loads settings and how `database.py` creates the async engine and sessions. Then configure Alembic without creating tables from FastAPI. Update this file after completing each task.
+Alembic setup is partially implemented, but database verification is unfinished. Investigate the
+trailing space in `.env`, verify the connection, and only then create the initial migration. Update
+this file after completing each task.
