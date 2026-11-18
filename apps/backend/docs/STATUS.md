@@ -35,15 +35,19 @@ Backend project bootstrap.
 - Initialized the Alembic directory and configuration.
 - Configured Alembic to use the async database connection and `Base.metadata`.
 - Removed the placeholder database URL from `alembic.ini`; the real URL remains in `.env`.
+- Added one representative SQLAlchemy model per module: `AppUser`, `MuscleGroup`, `Routine` and
+  `RoutineSession`.
+- Registered the models through `app/infrastructure/models/__init__.py`.
+- Verified the four tables and their mappers with SQLAlchemy.
 
 ## Current task
 
-Finish configuring Alembic and verify the database connection. This task is partially complete.
+Understand and review the representative SQLAlchemy models before implementing the remaining tables.
 
 ## Next tasks
 
-1. Investigate why saving `.env` adds a trailing space to the `ssl=require` parameter.
-2. Verify the database connection through Alembic.
+1. Implement the remaining SQLAlchemy models from `DATA-MODEL.md`.
+2. Verify the complete model metadata through Alembic.
 3. Create the initial Alembic migration.
 
 ## Important rules
@@ -67,11 +71,10 @@ Finish configuring Alembic and verify the database connection. This task is part
 
 ## Blockers
 
-- Alembic database verification is still pending.
-- The `.env` `ssl` parameter has been saved with a trailing space and needs investigation.
+- The initial migration is still pending until all SQLAlchemy models exist.
 
 ## Handoff
 
-Alembic setup is partially implemented, but database verification is unfinished. Investigate the
-trailing space in `.env`, verify the connection, and only then create the initial migration. Update
-this file after completing each task.
+Four representative models now demonstrate the module structure and are registered in
+`Base.metadata`. Review them first, then implement the remaining models before creating the initial
+Alembic migration. Update this file after completing each task.
